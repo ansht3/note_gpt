@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
-// Question type constants
+// Remove all interfaces and type definitions since this is a JavaScript file
+// Keep only what's being used
 const QuestionType = {
   TEXT: "text",
   MULTIPLE_CHOICE: "multiple_choice",
@@ -10,60 +11,6 @@ const QuestionType = {
   DATE: "date",
   RATING: "rating",
 };
-
-interface BaseQuestion {
-  id: string;
-  text: string;
-  type: string;
-  required: boolean;
-}
-
-interface TextQuestion extends BaseQuestion {
-  type: string;
-  maxLength?: number;
-}
-
-interface MultipleChoiceQuestion extends BaseQuestion {
-  type: string;
-  options: string[];
-  allowOther?: boolean;
-}
-
-interface CheckboxQuestion extends BaseQuestion {
-  type: string;
-  options: string[];
-  minSelections?: number;
-  maxSelections?: number;
-}
-
-interface NumberQuestion extends BaseQuestion {
-  type: string;
-  min?: number;
-  max?: number;
-}
-
-interface DateQuestion extends BaseQuestion {
-  type: string;
-  minDate?: Date;
-  maxDate?: Date;
-}
-
-interface RatingQuestion extends BaseQuestion {
-  type: string;
-  maxRating: number;
-  labels?: {
-    min: string,
-    max: string,
-  };
-}
-
-type Question =
-  | TextQuestion
-  | MultipleChoiceQuestion
-  | CheckboxQuestion
-  | NumberQuestion
-  | DateQuestion
-  | RatingQuestion;
 
 function SummaryPage() {
   const [summary, setSummary] = useState("");
