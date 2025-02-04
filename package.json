@@ -16,7 +16,8 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "jest",
+    "test:watch": "jest --watch",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -36,10 +37,6 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "scripts": {
-    "test": "jest",
-    "test:watch": "jest --watch"
   },
   "jest": {
     "testEnvironment": "jsdom",
