@@ -97,6 +97,63 @@ function SummaryPage() {
     generateSummary();
   }, [location]);
 
+  const QuestionComponent: React.FC<{ question: Question }> = ({ question }) => {
+    switch (question.type) {
+      case QuestionType.TEXT:
+        return (
+          <div>
+            <label>{question.text}</label>
+            <input 
+              type="text" 
+              maxLength={question.maxLength}
+              required={question.required}
+            />
+          </div>
+        );
+
+      case QuestionType.MULTIPLE_CHOICE:
+        return (
+          <div>
+            <label>{question.text}</label>
+            {question.options.map((option, index) => (
+              <div key={index}>
+                <input 
+                  type="radio" 
+                  name={question.id}
+                  required={question.required}
+                />
+                <label>{option}</label>
+              </div>
+            ))}
+            {question.allowOther && (
+              <div>
+                <input type="radio" name={question.id} />
+                <input type="text" placeholder="Other..." />
+              </div>
+            )}
+          </div>
+        );
+
+      case QuestionType.CHECKBOX:
+        return (
+          <div>
+            <label>{question.text}</label>
+            {question.options.map((option, index) => (
+              <div key={index}>
+                <input 
+                  type="checkbox"
+                  required={question.required && index === 0}
+                />
+                <label>{option}</label>
+              </div>
+            ))}
+          </div>
+        );
+
+      // Add other question type renderers as needed
+    }
+  };
+
   if (isLoading) return <div>Generating summary...</div>;
   if (error) return <div>Error: {error}</div>;
 
