@@ -26,6 +26,8 @@
   border-radius: 6px;
   color: white;
   cursor: pointer;
+  position: relative;
+  overflow: hidden;
 }
 
 .tab.active {
@@ -55,6 +57,15 @@
   border-radius: 6px;
   cursor: pointer;
   font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.synthesize-btn.processing {
+  background-color: #2d8ac7;
+  cursor: not-allowed;
 }
 
 .supported-links {
@@ -88,6 +99,45 @@
   padding: 40px;
   text-align: center;
   cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.upload-area.drag-active {
+  border-color: #4dabf7;
+  background-color: rgba(77, 171, 247, 0.1);
+}
+
+.upload-area.has-file {
+  border-style: solid;
+  border-color: #4dabf7;
+}
+
+.file-icon {
+  font-size: 32px;
+  color: #4dabf7;
+  margin-bottom: 10px;
+}
+
+.file-name {
+  margin: 10px 0;
+  color: #fff;
+  font-weight: 500;
+}
+
+.remove-file {
+  background-color: #ff4d4f;
+  color: white;
+  border: none;
+  padding: 5px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.remove-file:hover {
+  background-color: #ff6b6b;
 }
 
 .text-input {
@@ -99,4 +149,40 @@
   border-radius: 6px;
   color: white;
   resize: vertical;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.tab::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #4dabf7;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+}
+
+.tab.active::after {
+  transform: translateX(0);
+}
+
+.url-input:focus,
+.text-input:focus {
+  border-color: #4dabf7;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(77, 171, 247, 0.2);
 }
