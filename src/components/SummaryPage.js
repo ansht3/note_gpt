@@ -1,17 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
-// Remove all interfaces and type definitions since this is a JavaScript file
-// Keep only what's being used
-const QuestionType = {
-  TEXT: "text",
-  MULTIPLE_CHOICE: "multiple_choice",
-  CHECKBOX: "checkbox",
-  NUMBER: "number",
-  DATE: "date",
-  RATING: "rating",
-};
-
 function SummaryPage() {
   const [summary, setSummary] = useState("");
   const [isLoading, setIsLoading] = useState(true);
