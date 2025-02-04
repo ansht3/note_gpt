@@ -1,17 +1,74 @@
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
-import { FaLink, FaUpload, FaFileAlt } from "react-icons/fa";
+import { FaLink, FaUpload, FaFileAlt, FaSpinner } from "react-icons/fa";
 import "./HomePage.css";
 
 function HomePage() {
   const [videoUrl, setVideoUrl] = useState("");
   const [activeTab, setActiveTab] = useState("link");
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [dragActive, setDragActive] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [textContent, setTextContent] = useState("");
   const history = useHistory();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (videoUrl) {
-      history.push(`/transcript?url=${encodeURIComponent(videoUrl)}`);
+    setIsProcessing(true);
+
+    try {
+      switch (activeTab) {
+        case "link":
+          if (videoUrl) {
+            // Process URL
+            history.push(`/transcript?url=${encodeURIComponent(videoUrl)}`);
+          }
+          break;
+        case "upload":
+          if (selectedFile) {
+            // Process file upload
+            const formData = new FormData();
+            formData.append("file", selectedFile);
+            // Add file upload logic here
+          }
+          break;
+        case "text":
+          if (textContent) {
+            // Process text content
+            history.push(`/summary`, { text: textContent });
+          }
+          break;
+      }
+    } catch (error) {
+      console.error("Error processing content:", error);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleDrag = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      setSelectedFile(e.dataTransfer.files[0]);
+    }
+  };
+
+  const handleFileSelect = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedFile(e.target.files[0]);
     }
   };
 
@@ -47,23 +104,69 @@ function HomePage() {
               onChange={(e) => setVideoUrl(e.target.value)}
               placeholder="https://example.com/your-online-url"
               className="url-input"
+              disabled={isProcessing}
             />
           )}
+
           {activeTab === "upload" && (
-            <div className="upload-area">
-              <FaUpload />
-              <p>Drag and drop your file here or click to browse</p>
-              <input type="file" className="file-input" />
+            <div
+              className={`upload-area ${dragActive ? "drag-active" : ""} ${
+                selectedFile ? "has-file" : ""
+              }`}
+              onDragEnter={handleDrag}
+              onDragLeave={handleDrag}
+              onDragOver={handleDrag}
+              onDrop={handleDrop}
+            >
+              {selectedFile ? (
+                <>
+                  <FaFileAlt className="file-icon" />
+                  <p className="file-name">{selectedFile.name}</p>
+                  <button
+                    type="button"
+                    className="remove-file"
+                    onClick={() => setSelectedFile(null)}
+                  >
+                    Remove
+                  </button>
+                </>
+              ) : (
+                <>
+                  <FaUpload className="upload-icon" />
+                  <p>Drag and drop your file here or click to browse</p>
+                  <input
+                    type="file"
+                    className="file-input"
+                    onChange={handleFileSelect}
+                    disabled={isProcessing}
+                  />
+                </>
+              )}
             </div>
           )}
+
           {activeTab === "text" && (
             <textarea
               placeholder="Paste your text here..."
               className="text-input"
+              value={textContent}
+              onChange={(e) => setTextContent(e.target.value)}
+              disabled={isProcessing}
             />
           )}
-          <button type="submit" className="synthesize-btn">
-            Synthesize Now
+
+          <button
+            type="submit"
+            className={`synthesize-btn ${isProcessing ? "processing" : ""}`}
+            disabled={isProcessing}
+          >
+            {isProcessing ? (
+              <>
+                <FaSpinner className="spinner" /> Processing...
+              </>
+            ) : (
+              "Synthesize Now"
+            )}
           </button>
         </form>
 
