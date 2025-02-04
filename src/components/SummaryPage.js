@@ -1,6 +1,69 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
+interface BaseQuestion {
+  id: string;
+  text: string;
+  type: QuestionType;
+  required: boolean;
+}
+
+enum QuestionType {
+  TEXT = 'text',
+  MULTIPLE_CHOICE = 'multiple_choice',
+  CHECKBOX = 'checkbox',
+  NUMBER = 'number',
+  DATE = 'date',
+  RATING = 'rating'
+}
+
+interface TextQuestion extends BaseQuestion {
+  type: QuestionType.TEXT;
+  maxLength?: number;
+}
+
+interface MultipleChoiceQuestion extends BaseQuestion {
+  type: QuestionType.MULTIPLE_CHOICE;
+  options: string[];
+  allowOther?: boolean;
+}
+
+interface CheckboxQuestion extends BaseQuestion {
+  type: QuestionType.CHECKBOX;
+  options: string[];
+  minSelections?: number;
+  maxSelections?: number;
+}
+
+interface NumberQuestion extends BaseQuestion {
+  type: QuestionType.NUMBER;
+  min?: number;
+  max?: number;
+}
+
+interface DateQuestion extends BaseQuestion {
+  type: QuestionType.DATE;
+  minDate?: Date;
+  maxDate?: Date;
+}
+
+interface RatingQuestion extends BaseQuestion {
+  type: QuestionType.RATING;
+  maxRating: number;
+  labels?: {
+    min: string;
+    max: string;
+  };
+}
+
+type Question = 
+  | TextQuestion 
+  | MultipleChoiceQuestion 
+  | CheckboxQuestion 
+  | NumberQuestion 
+  | DateQuestion 
+  | RatingQuestion;
+
 function SummaryPage() {
   const [summary, setSummary] = useState("");
   const [isLoading, setIsLoading] = useState(true);
