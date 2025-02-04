@@ -1,67 +1,68 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
+// Question type constants
+const QuestionType = {
+  TEXT: "text",
+  MULTIPLE_CHOICE: "multiple_choice",
+  CHECKBOX: "checkbox",
+  NUMBER: "number",
+  DATE: "date",
+  RATING: "rating",
+};
+
 interface BaseQuestion {
   id: string;
   text: string;
-  type: QuestionType;
+  type: string;
   required: boolean;
 }
 
-enum QuestionType {
-  TEXT = 'text',
-  MULTIPLE_CHOICE = 'multiple_choice',
-  CHECKBOX = 'checkbox',
-  NUMBER = 'number',
-  DATE = 'date',
-  RATING = 'rating'
-}
-
 interface TextQuestion extends BaseQuestion {
-  type: QuestionType.TEXT;
+  type: string;
   maxLength?: number;
 }
 
 interface MultipleChoiceQuestion extends BaseQuestion {
-  type: QuestionType.MULTIPLE_CHOICE;
+  type: string;
   options: string[];
   allowOther?: boolean;
 }
 
 interface CheckboxQuestion extends BaseQuestion {
-  type: QuestionType.CHECKBOX;
+  type: string;
   options: string[];
   minSelections?: number;
   maxSelections?: number;
 }
 
 interface NumberQuestion extends BaseQuestion {
-  type: QuestionType.NUMBER;
+  type: string;
   min?: number;
   max?: number;
 }
 
 interface DateQuestion extends BaseQuestion {
-  type: QuestionType.DATE;
+  type: string;
   minDate?: Date;
   maxDate?: Date;
 }
 
 interface RatingQuestion extends BaseQuestion {
-  type: QuestionType.RATING;
+  type: string;
   maxRating: number;
   labels?: {
-    min: string;
-    max: string;
+    min: string,
+    max: string,
   };
 }
 
-type Question = 
-  | TextQuestion 
-  | MultipleChoiceQuestion 
-  | CheckboxQuestion 
-  | NumberQuestion 
-  | DateQuestion 
+type Question =
+  | TextQuestion
+  | MultipleChoiceQuestion
+  | CheckboxQuestion
+  | NumberQuestion
+  | DateQuestion
   | RatingQuestion;
 
 function SummaryPage() {
@@ -96,63 +97,6 @@ function SummaryPage() {
 
     generateSummary();
   }, [location]);
-
-  const QuestionComponent: React.FC<{ question: Question }> = ({ question }) => {
-    switch (question.type) {
-      case QuestionType.TEXT:
-        return (
-          <div>
-            <label>{question.text}</label>
-            <input 
-              type="text" 
-              maxLength={question.maxLength}
-              required={question.required}
-            />
-          </div>
-        );
-
-      case QuestionType.MULTIPLE_CHOICE:
-        return (
-          <div>
-            <label>{question.text}</label>
-            {question.options.map((option, index) => (
-              <div key={index}>
-                <input 
-                  type="radio" 
-                  name={question.id}
-                  required={question.required}
-                />
-                <label>{option}</label>
-              </div>
-            ))}
-            {question.allowOther && (
-              <div>
-                <input type="radio" name={question.id} />
-                <input type="text" placeholder="Other..." />
-              </div>
-            )}
-          </div>
-        );
-
-      case QuestionType.CHECKBOX:
-        return (
-          <div>
-            <label>{question.text}</label>
-            {question.options.map((option, index) => (
-              <div key={index}>
-                <input 
-                  type="checkbox"
-                  required={question.required && index === 0}
-                />
-                <label>{option}</label>
-              </div>
-            ))}
-          </div>
-        );
-
-      // Add other question type renderers as needed
-    }
-  };
 
   if (isLoading) return <div>Generating summary...</div>;
   if (error) return <div>Error: {error}</div>;
