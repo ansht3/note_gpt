@@ -1,5 +1,5 @@
 from transformers import pipeline
-import openai
+from openai import AsyncOpenAI
 import os
 from typing import List, Dict, Optional
 from datetime import datetime
@@ -11,7 +11,7 @@ class AIService:
         self.api_key = os.getenv('OPENAI_API_KEY')
         if not self.api_key:
             raise ValueError("OpenAI API key not found in environment variables")
-        openai.api_key = self.api_key
+        self.client = AsyncOpenAI(api_key=self.api_key)
         
         # Configure logging
         logging.basicConfig(level=logging.INFO)
@@ -20,7 +20,7 @@ class AIService:
     async def generate_summary(self, text: str, max_length: int = 500) -> Dict:
         """Generate a summary of the provided text."""
         try:
-            response = await openai.ChatCompletion.acreate(
+            response = await self.client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
                     {"role": "system", "content": "Generate a concise summary with key points from the following text:"},
@@ -45,7 +45,7 @@ class AIService:
     async def generate_flashcards(self, text: str, num_cards: int = 10) -> Dict:
         """Generate flashcards from the provided text."""
         try:
-            response = await openai.ChatCompletion.acreate(
+            response = await self.client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
                     {"role": "system", "content": f"Create {num_cards} flashcards (question-answer pairs) from the following text. Format as Q: question A: answer"},
@@ -80,7 +80,7 @@ class AIService:
             Content: [slide content]
             ---"""
 
-            response = await openai.ChatCompletion.acreate(
+            response = await self.client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
                     {"role": "system", "content": system_prompt},
@@ -107,7 +107,7 @@ class AIService:
     async def generate_answer(self, question: str, context: str) -> Dict:
         """Generate an answer to a question based on the provided context."""
         try:
-            response = await openai.ChatCompletion.acreate(
+            response = await self.client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
                     {"role": "system", "content": "Answer the following question based on the provided context. If the answer cannot be found in the context, say so."},
