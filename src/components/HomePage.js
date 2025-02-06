@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import { FaLink, FaUpload, FaFileAlt, FaSpinner } from "react-icons/fa";
 import "./HomePage.css";
+import api from "../services/api";
 
 function HomePage() {
   const [videoUrl, setVideoUrl] = useState("");
@@ -20,27 +21,26 @@ function HomePage() {
       switch (activeTab) {
         case "link":
           if (videoUrl) {
-            // Process URL
-            history.push(`/transcript?url=${encodeURIComponent(videoUrl)}`);
+            const transcript = await api.videos.getTranscript(videoUrl);
+            history.push(`/transcript`, { transcript: transcript.data });
           }
           break;
         case "upload":
           if (selectedFile) {
-            // Process file upload
-            const formData = new FormData();
-            formData.append("file", selectedFile);
-            // Add file upload logic here
+            const response = await api.videos.uploadVideo(selectedFile);
+            history.push(`/transcript`, { transcript: response.data });
           }
           break;
         case "text":
           if (textContent) {
-            // Process text content
-            history.push(`/summary`, { text: textContent });
+            const summary = await api.ai.generateSummary(textContent);
+            history.push(`/summary`, { summary: summary.data });
           }
           break;
       }
     } catch (error) {
       console.error("Error processing content:", error);
+      // Handle error appropriately
     } finally {
       setIsProcessing(false);
     }
