@@ -1,0 +1,73 @@
+.error-boundary {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+  background-color: var(--background-dark);
+}
+
+.error-content {
+  max-width: 600px;
+  padding: 2rem;
+  background-color: var(--background-light);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.error-details {
+  margin: 1.5rem 0;
+  color: var(--text-secondary);
+}
+
+.error-details details {
+  margin-top: 1rem;
+}
+
+.error-details summary {
+  cursor: pointer;
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+
+.error-details pre {
+  padding: 1rem;
+  background-color: var(--background-dark);
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.error-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.retry-button,
+.refresh-button {
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.retry-button {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.retry-button:hover {
+  background-color: var(--primary-dark);
+}
+
+.refresh-button {
+  background-color: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+.refresh-button:hover {
+  background-color: var(--background-dark);
+}
