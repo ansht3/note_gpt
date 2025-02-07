@@ -1,0 +1,112 @@
+.presentation-page {
+  padding: var(--space-lg);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.presentation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-xl);
+}
+
+.presentation-actions {
+  display: flex;
+  gap: var(--space-md);
+}
+
+.settings-button,
+.download-button,
+.generate-button {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  transition: all var(--transition-fast);
+}
+
+.settings-button {
+  background-color: var(--background-elevated);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.download-button {
+  background-color: var(--primary-color);
+  color: var(--text-inverse);
+  border: none;
+}
+
+.generate-button {
+  background-color: var(--primary-color);
+  color: var(--text-inverse);
+  border: none;
+  font-size: var(--font-size-lg);
+  padding: var(--space-md) var(--space-xl);
+}
+
+.slides-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--space-lg);
+  padding: var(--space-md);
+}
+
+.slide {
+  background-color: var(--background-light);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-md);
+  transition: transform var(--transition-fast);
+}
+
+.slide:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.slide-title {
+  color: var(--primary-color);
+  margin-bottom: var(--space-md);
+  font-size: var(--font-size-xl);
+}
+
+.slide-content {
+  color: var(--text-secondary);
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-relaxed);
+}
+
+.slide-content p {
+  margin-bottom: var(--space-sm);
+}
+
+.empty-state {
+  text-align: center;
+  padding: var(--space-xxl) 0;
+  color: var(--text-secondary);
+}
+
+.error-message {
+  background-color: var(--error-color);
+  color: var(--text-inverse);
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-lg);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .presentation-header {
+    flex-direction: column;
+    gap: var(--space-md);
+    text-align: center;
+  }
+
+  .slides-container {
+    grid-template-columns: 1fr;
+  }
+}
