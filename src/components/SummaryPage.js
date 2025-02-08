@@ -1,69 +1,194 @@
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useHistory } from "react-router-dom";
+import {
+  FaDownload,
+  FaCopy,
+  FaEdit,
+  FaArrowLeft,
+  FaSliders,
+} from "react-icons/fa";
+import LoadingSpinner from "./LoadingSpinner";
+import "./SummaryPage.css";
 
 function SummaryPage() {
   const [summary, setSummary] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const [showTranscript, setShowTranscript] = useState(false);
   const [error, setError] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedSummary, setEditedSummary] = useState("");
+  const [settings, setSettings] = useState({
+    length: "medium",
+    style: "concise",
+    format: "paragraphs",
+  });
+
   const location = useLocation();
+  const history = useHistory();
+  const transcript = location.state?.transcript;
 
   useEffect(() => {
-    const generateSummary = async () => {
-      try {
-        const transcript = location.state?.transcript;
-        if (!transcript) throw new Error("No transcript provided");
-
-        const response = await fetch("/api/generate-summary", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ transcript }),
-        });
-
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error);
-
-        setSummary(data.summary);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
+    if (!transcript) {
+      setError("No transcript provided");
+      setIsLoading(false);
+      return;
+    }
     generateSummary();
-  }, [location]);
+  }, [transcript]);
 
-  if (isLoading) return <div>Generating summary...</div>;
-  if (error) return <div>Error: {error}</div>;
+  const generateSummary = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const response = await fetch("/api/summary", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          transcript,
+          settings,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error);
+
+      setSummary(data.summary);
+      setEditedSummary(data.summary);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(editedSummary);
+      // Optional: Add success toast notification
+    } catch (err) {
+      setError("Failed to copy summary");
+    }
+  };
+
+  const handleDownload = () => {
+    try {
+      const blob = new Blob([editedSummary], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "summary.txt";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setError("Failed to download summary");
+    }
+  };
+
+  const handleSaveEdit = () => {
+    setSummary(editedSummary);
+    setIsEditing(false);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="summary-loading">
+        <LoadingSpinner
+          text="Generating summary..."
+          size="large"
+          spinnerType="wave"
+        />
+      </div>
+    );
+  }
 
   return (
-    <div className="summary-container">
-      <h2>Video Summary</h2>
-      <button
-        onClick={() => setShowTranscript(!showTranscript)}
-        className="toggle-btn"
-      >
-        {showTranscript ? "Show Summary" : "Show Full Transcript"}
-      </button>
+    <div className="summary-page">
+      <div className="summary-header">
+        <button
+          className="back-button"
+          onClick={() => history.goBack()}
+          title="Go back"
+        >
+          <FaArrowLeft /> Back
+        </button>
+        <h1>Summary</h1>
+        <div className="summary-actions">
+          <button
+            className="action-button"
+            onClick={() => setIsEditing(!isEditing)}
+            title={isEditing ? "Save changes" : "Edit summary"}
+          >
+            <FaEdit />
+            {isEditing ? "Save" : "Edit"}
+          </button>
+          <button
+            className="action-button"
+            onClick={handleCopy}
+            title="Copy to clipboard"
+          >
+            <FaCopy />
+            Copy
+          </button>
+          <button
+            className="action-button"
+            onClick={handleDownload}
+            title="Download summary"
+          >
+            <FaDownload />
+            Download
+          </button>
+          <button
+            className="action-button settings"
+            onClick={() => {
+              /* Add settings modal logic */
+            }}
+            title="Summary settings"
+          >
+            <FaSliders />
+            Settings
+          </button>
+        </div>
+      </div>
 
-      <div className="content-container">
-        {showTranscript ? (
-          <div className="transcript-view">
-            <h3>Full Transcript</h3>
-            <p>{location.state?.transcript}</p>
-          </div>
+      {error && <div className="error-message">{error}</div>}
+
+      <div className="summary-content">
+        {isEditing ? (
+          <textarea
+            value={editedSummary}
+            onChange={(e) => setEditedSummary(e.target.value)}
+            className="summary-editor"
+            placeholder="Summary content..."
+          />
         ) : (
-          <div className="summary-view">
-            <h3>Key Points</h3>
-            <div className="summary-content">
-              {summary.split("\n").map((point, index) => (
-                <p key={index}>{point}</p>
-              ))}
-            </div>
+          <div className="summary-text">
+            {summary.split("\n").map((paragraph, index) => (
+              <p key={index}>{paragraph}</p>
+            ))}
           </div>
         )}
       </div>
+
+      {isEditing && (
+        <div className="edit-actions">
+          <button
+            className="cancel-button"
+            onClick={() => {
+              setIsEditing(false);
+              setEditedSummary(summary);
+            }}
+          >
+            Cancel
+          </button>
+          <button className="save-button" onClick={handleSaveEdit}>
+            Save Changes
+          </button>
+        </div>
+      )}
     </div>
   );
 }
