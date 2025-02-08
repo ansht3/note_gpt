@@ -1,93 +1,211 @@
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useHistory } from "react-router-dom";
+import {
+  FaArrowLeft,
+  FaArrowRight,
+  FaRedo,
+  FaCog,
+  FaDownload,
+  FaPlus,
+} from "react-icons/fa";
+import LoadingSpinner from "./LoadingSpinner";
+import "./FlashcardsPage.css";
 
 function FlashcardsPage() {
   const [flashcards, setFlashcards] = useState([]);
-  const [currentCardIndex, setCurrentCardIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [studyMode, setStudyMode] = useState("review"); // review, quiz, spaced
+  const [settings, setSettings] = useState({
+    cardStyle: "basic", // basic, detailed, minimal
+    autoFlip: false,
+    flipDuration: 5,
+    showProgress: true,
+  });
+
   const location = useLocation();
+  const history = useHistory();
+  const text = location.state?.text;
 
   useEffect(() => {
-    const generateFlashcards = async () => {
-      try {
-        const response = await fetch("/api/generate-flashcards", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            transcript: location.state?.transcript,
-          }),
-        });
-
-        const data = await response.json();
-        setFlashcards(data.flashcards);
-      } catch (error) {
-        console.error("Error generating flashcards:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
+    if (!text) {
+      setError("No content provided for flashcard generation");
+      setIsLoading(false);
+      return;
+    }
     generateFlashcards();
-  }, [location]);
+  }, [text]);
 
-  const handleNextCard = () => {
+  const generateFlashcards = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const response = await fetch("/api/flashcards", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          text,
+          settings,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error);
+
+      setFlashcards(data.flashcards);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleNext = () => {
     setIsFlipped(false);
-    setCurrentCardIndex((prev) =>
-      prev === flashcards.length - 1 ? 0 : prev + 1
+    setCurrentIndex((prev) => (prev + 1) % flashcards.length);
+  };
+
+  const handlePrevious = () => {
+    setIsFlipped(false);
+    setCurrentIndex(
+      (prev) => (prev - 1 + flashcards.length) % flashcards.length
     );
   };
 
-  const handlePreviousCard = () => {
-    setIsFlipped(false);
-    setCurrentCardIndex((prev) =>
-      prev === 0 ? flashcards.length - 1 : prev - 1
-    );
+  const handleFlip = () => {
+    setIsFlipped(!isFlipped);
   };
 
-  if (isLoading) return <div>Generating flashcards...</div>;
-  if (!flashcards.length) return <div>No flashcards available</div>;
+  const handleShuffle = () => {
+    const shuffled = [...flashcards].sort(() => Math.random() - 0.5);
+    setFlashcards(shuffled);
+    setCurrentIndex(0);
+    setIsFlipped(false);
+  };
 
-  const currentCard = flashcards[currentCardIndex];
+  const handleDownload = () => {
+    try {
+      const content = flashcards
+        .map((card, i) => `Card ${i + 1}\nQ: ${card.front}\nA: ${card.back}\n`)
+        .join("\n");
+      const blob = new Blob([content], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "flashcards.txt";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setError("Failed to download flashcards");
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <LoadingSpinner
+        text="Generating flashcards..."
+        size="large"
+        spinnerType="wave"
+      />
+    );
+  }
 
   return (
-    <div className="flashcards-container">
-      <h2>Study Flashcards</h2>
-
-      <div className="progress-indicator">
-        Card {currentCardIndex + 1} of {flashcards.length}
-      </div>
-
-      <div
-        className={`flashcard ${isFlipped ? "flipped" : ""}`}
-        onClick={() => setIsFlipped(!isFlipped)}
-      >
-        <div className="flashcard-inner">
-          <div className="flashcard-front">
-            <p>{currentCard.question}</p>
-          </div>
-          <div className="flashcard-back">
-            <p>{currentCard.answer}</p>
-          </div>
+    <div className="flashcards-page">
+      <div className="flashcards-header">
+        <button
+          className="back-button"
+          onClick={() => history.goBack()}
+          title="Go back"
+        >
+          <FaArrowLeft /> Back
+        </button>
+        <h1>Flashcards</h1>
+        <div className="flashcards-actions">
+          <button
+            className="action-button"
+            onClick={handleShuffle}
+            title="Shuffle cards"
+          >
+            <FaRedo />
+            Shuffle
+          </button>
+          <button
+            className="action-button"
+            onClick={handleDownload}
+            title="Download flashcards"
+          >
+            <FaDownload />
+            Download
+          </button>
+          <button
+            className="action-button settings"
+            onClick={() => {
+              /* Add settings modal logic */
+            }}
+            title="Flashcard settings"
+          >
+            <FaCog />
+            Settings
+          </button>
         </div>
       </div>
 
-      <div className="navigation-buttons">
-        <button onClick={handlePreviousCard}>Previous</button>
-        <button onClick={() => setIsFlipped(!isFlipped)}>
-          {isFlipped ? "Show Question" : "Show Answer"}
-        </button>
-        <button onClick={handleNextCard}>Next</button>
-      </div>
+      {error && <div className="error-message">{error}</div>}
 
-      <div className="study-progress">
-        <div
-          className="progress-bar"
-          style={{
-            width: `${((currentCardIndex + 1) / flashcards.length) * 100}%`,
-          }}
-        />
-      </div>
+      {flashcards.length > 0 && (
+        <div className="flashcards-container">
+          <div
+            className={`flashcard ${isFlipped ? "flipped" : ""}`}
+            onClick={handleFlip}
+          >
+            <div className="flashcard-inner">
+              <div className="flashcard-front">
+                <p>{flashcards[currentIndex].front}</p>
+              </div>
+              <div className="flashcard-back">
+                <p>{flashcards[currentIndex].back}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="flashcard-controls">
+            <button
+              className="control-button"
+              onClick={handlePrevious}
+              disabled={currentIndex === 0}
+            >
+              <FaArrowLeft /> Previous
+            </button>
+            <div className="flashcard-progress">
+              {currentIndex + 1} / {flashcards.length}
+            </div>
+            <button
+              className="control-button"
+              onClick={handleNext}
+              disabled={currentIndex === flashcards.length - 1}
+            >
+              Next <FaArrowRight />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {flashcards.length === 0 && !isLoading && (
+        <div className="empty-state">
+          <p>No flashcards available</p>
+          <button className="generate-button" onClick={generateFlashcards}>
+            <FaPlus /> Generate Flashcards
+          </button>
+        </div>
+      )}
     </div>
   );
 }
