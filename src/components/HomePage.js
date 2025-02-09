@@ -1,205 +1,145 @@
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
-import { FaLink, FaUpload, FaFileAlt, FaSpinner } from "react-icons/fa";
+import {
+  FaYoutube,
+  FaFileUpload,
+  FaKeyboard,
+  FaLightbulb,
+} from "react-icons/fa";
+import LoadingSpinner from "./LoadingSpinner";
 import "./HomePage.css";
-import api from "../services/api";
 
 function HomePage() {
-  const [videoUrl, setVideoUrl] = useState("");
-  const [activeTab, setActiveTab] = useState("link");
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [dragActive, setDragActive] = useState(false);
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [textContent, setTextContent] = useState("");
+  const [url, setUrl] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   const history = useHistory();
 
-  const handleSubmit = async (e) => {
+  const handleUrlSubmit = async (e) => {
     e.preventDefault();
-    setIsProcessing(true);
+    if (!url.trim()) {
+      setError("Please enter a valid YouTube URL");
+      return;
+    }
 
     try {
-      switch (activeTab) {
-        case "link":
-          if (videoUrl) {
-            const transcript = await api.videos.getTranscript(videoUrl);
-            history.push(`/transcript`, { transcript: transcript.data });
-          }
-          break;
-        case "upload":
-          if (selectedFile) {
-            const response = await api.videos.uploadVideo(selectedFile);
-            history.push(`/transcript`, { transcript: response.data });
-          }
-          break;
-        case "text":
-          if (textContent) {
-            const summary = await api.ai.generateSummary(textContent);
-            history.push(`/summary`, { summary: summary.data });
-          }
-          break;
-      }
-    } catch (error) {
-      console.error("Error processing content:", error);
-      // Handle error appropriately
+      setIsLoading(true);
+      setError(null);
+      history.push(`/transcript?url=${encodeURIComponent(url)}`);
+    } catch (err) {
+      setError(err.message);
     } finally {
-      setIsProcessing(false);
+      setIsLoading(false);
     }
   };
 
-  const handleDrag = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true);
-    } else if (e.type === "dragleave") {
-      setDragActive(false);
-    }
+  const handleManualInput = () => {
+    history.push("/create");
   };
 
-  const handleDrop = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      setSelectedFile(e.dataTransfer.files[0]);
-    }
-  };
-
-  const handleFileSelect = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setSelectedFile(e.target.files[0]);
-    }
-  };
+  const features = [
+    {
+      icon: <FaYoutube />,
+      title: "YouTube Integration",
+      description: "Generate notes from any YouTube video automatically",
+    },
+    {
+      icon: <FaFileUpload />,
+      title: "File Upload",
+      description: "Upload your own content for processing",
+    },
+    {
+      icon: <FaKeyboard />,
+      title: "Manual Input",
+      description: "Type or paste your own text for processing",
+    },
+    {
+      icon: <FaLightbulb />,
+      title: "AI-Powered",
+      description: "Advanced AI for high-quality content generation",
+    },
+  ];
 
   return (
-    <div className="home-container">
-      <div className="content-box">
-        <div className="tabs">
-          <button
-            className={`tab ${activeTab === "link" ? "active" : ""}`}
-            onClick={() => setActiveTab("link")}
-          >
-            <FaLink /> Link
-          </button>
-          <button
-            className={`tab ${activeTab === "upload" ? "active" : ""}`}
-            onClick={() => setActiveTab("upload")}
-          >
-            <FaUpload /> Upload
-          </button>
-          <button
-            className={`tab ${activeTab === "text" ? "active" : ""}`}
-            onClick={() => setActiveTab("text")}
-          >
-            <FaFileAlt /> Text
-          </button>
-        </div>
+    <div className="home-page">
+      <section className="hero-section">
+        <h1>Transform Content into Knowledge</h1>
+        <p className="hero-subtitle">
+          Generate summaries, presentations, and flashcards from YouTube videos
+          or your own content
+        </p>
 
-        <form onSubmit={handleSubmit} className="input-form">
-          {activeTab === "link" && (
+        <div className="input-container">
+          <form onSubmit={handleUrlSubmit} className="url-form">
             <input
               type="text"
-              value={videoUrl}
-              onChange={(e) => setVideoUrl(e.target.value)}
-              placeholder="https://example.com/your-online-url"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="Paste YouTube URL here..."
               className="url-input"
-              disabled={isProcessing}
             />
-          )}
-
-          {activeTab === "upload" && (
-            <div
-              className={`upload-area ${dragActive ? "drag-active" : ""} ${
-                selectedFile ? "has-file" : ""
-              }`}
-              onDragEnter={handleDrag}
-              onDragLeave={handleDrag}
-              onDragOver={handleDrag}
-              onDrop={handleDrop}
+            <button
+              type="submit"
+              className="submit-button"
+              disabled={isLoading}
             >
-              {selectedFile ? (
-                <>
-                  <FaFileAlt className="file-icon" />
-                  <p className="file-name">{selectedFile.name}</p>
-                  <button
-                    type="button"
-                    className="remove-file"
-                    onClick={() => setSelectedFile(null)}
-                  >
-                    Remove
-                  </button>
-                </>
-              ) : (
-                <>
-                  <FaUpload className="upload-icon" />
-                  <p>Drag and drop your file here or click to browse</p>
-                  <input
-                    type="file"
-                    className="file-input"
-                    onChange={handleFileSelect}
-                    disabled={isProcessing}
-                  />
-                </>
-              )}
-            </div>
-          )}
+              Generate
+            </button>
+          </form>
 
-          {activeTab === "text" && (
-            <textarea
-              placeholder="Paste your text here..."
-              className="text-input"
-              value={textContent}
-              onChange={(e) => setTextContent(e.target.value)}
-              disabled={isProcessing}
-            />
-          )}
+          <div className="divider">
+            <span>OR</span>
+          </div>
 
-          <button
-            type="submit"
-            className={`synthesize-btn ${isProcessing ? "processing" : ""}`}
-            disabled={isProcessing}
-          >
-            {isProcessing ? (
-              <>
-                <FaSpinner className="spinner" /> Processing...
-              </>
-            ) : (
-              "Synthesize Now"
-            )}
+          <button onClick={handleManualInput} className="manual-input-button">
+            Enter Text Manually
           </button>
-        </form>
 
-        <div className="supported-links">
-          <h3>Supported Summary Links</h3>
-          <div className="link-types">
-            <div className="link-type">
-              <img src="/youtube-icon.png" alt="YouTube" />
-              <span>YouTube Videos / Podcasts</span>
+          {error && <div className="error-message">{error}</div>}
+        </div>
+
+        {isLoading && (
+          <LoadingSpinner
+            size="large"
+            text="Processing your request..."
+            spinnerType="wave"
+          />
+        )}
+      </section>
+
+      <section className="features-section">
+        <h2>Features</h2>
+        <div className="features-grid">
+          {features.map((feature, index) => (
+            <div key={index} className="feature-card">
+              <div className="feature-icon">{feature.icon}</div>
+              <h3>{feature.title}</h3>
+              <p>{feature.description}</p>
             </div>
-            <div className="link-type">
-              <img src="/google-podcast-icon.png" alt="Google Podcasts" />
-              <span>Google Podcasts</span>
-            </div>
-            <div className="link-type">
-              <img src="/webpage-icon.png" alt="Webpages" />
-              <span>Webpages / Articles</span>
-            </div>
-            <div className="link-type">
-              <img src="/pdf-icon.png" alt="PDF" />
-              <span>Online PDFs</span>
-            </div>
-            <div className="link-type">
-              <img src="/word-icon.png" alt="Word" />
-              <span>Online Words</span>
-            </div>
-            <div className="link-type">
-              <img src="/ppt-icon.png" alt="PowerPoint" />
-              <span>Online PPTs</span>
-            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="how-it-works">
+        <h2>How It Works</h2>
+        <div className="steps-container">
+          <div className="step">
+            <div className="step-number">1</div>
+            <h3>Input Content</h3>
+            <p>Paste a YouTube URL or enter your text</p>
+          </div>
+          <div className="step">
+            <div className="step-number">2</div>
+            <h3>AI Processing</h3>
+            <p>Our AI analyzes and processes your content</p>
+          </div>
+          <div className="step">
+            <div className="step-number">3</div>
+            <h3>Generate</h3>
+            <p>Get your summaries, flashcards, or presentations</p>
           </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 }
