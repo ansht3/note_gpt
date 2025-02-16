@@ -5,6 +5,7 @@ import {
   FaCircleNotch,
   FaSyncAlt,
   FaCompactDisc,
+  FaRegClock,
 } from "react-icons/fa";
 import "./LoadingSpinner.css";
 
@@ -19,6 +20,8 @@ function LoadingSpinner({
   icon = "default",
   speed = "normal",
   textPosition = "bottom",
+  progress = null,
+  customClass = "",
 }) {
   const spinnerClasses = [
     "spinner-container",
@@ -29,6 +32,7 @@ function LoadingSpinner({
     fullScreen && "spinner-fullscreen",
     overlay && "spinner-overlay",
     `spinner-type-${spinnerType}`,
+    customClass,
   ]
     .filter(Boolean)
     .join(" ");
@@ -41,6 +45,8 @@ function LoadingSpinner({
         return <FaSyncAlt className="spinner-icon" />;
       case "disc":
         return <FaCompactDisc className="spinner-icon" />;
+      case "clock":
+        return <FaRegClock className="spinner-icon" />;
       default:
         return <FaSpinner className="spinner-icon" />;
     }
@@ -60,17 +66,14 @@ function LoadingSpinner({
         return (
           <div className="pulse-spinner">
             <div className="pulse-ring"></div>
-            {renderIcon()}
           </div>
         );
       case "wave":
         return (
           <div className="wave-spinner">
-            <div className="wave-bar"></div>
-            <div className="wave-bar"></div>
-            <div className="wave-bar"></div>
-            <div className="wave-bar"></div>
-            <div className="wave-bar"></div>
+            {[...Array(5)].map((_, index) => (
+              <div key={index} className="wave-bar"></div>
+            ))}
           </div>
         );
       case "bounce":
@@ -81,13 +84,32 @@ function LoadingSpinner({
             <div className="bounce-dot"></div>
           </div>
         );
+      case "progress":
+        return (
+          <div className="progress-spinner">
+            <div
+              className="progress-bar"
+              style={{ width: `${progress || 0}%` }}
+            />
+            {progress !== null && (
+              <span className="progress-text">{`${Math.round(
+                progress
+              )}%`}</span>
+            )}
+          </div>
+        );
       default:
         return <div className="circular-spinner">{renderIcon()}</div>;
     }
   };
 
   return (
-    <div className={spinnerClasses} role="status" aria-live="polite">
+    <div
+      className={spinnerClasses}
+      role="status"
+      aria-live="polite"
+      aria-busy="true"
+    >
       <div className="spinner-content">
         {textPosition === "top" && showText && (
           <p className="spinner-text" aria-label={text}>
@@ -112,10 +134,19 @@ LoadingSpinner.propTypes = {
   fullScreen: PropTypes.bool,
   overlay: PropTypes.bool,
   showText: PropTypes.bool,
-  spinnerType: PropTypes.oneOf(["circular", "dots", "pulse", "wave", "bounce"]),
-  icon: PropTypes.oneOf(["default", "notch", "sync", "disc"]),
+  spinnerType: PropTypes.oneOf([
+    "circular",
+    "dots",
+    "pulse",
+    "wave",
+    "bounce",
+    "progress",
+  ]),
+  icon: PropTypes.oneOf(["default", "notch", "sync", "disc", "clock"]),
   speed: PropTypes.oneOf(["slow", "normal", "fast"]),
   textPosition: PropTypes.oneOf(["top", "bottom"]),
+  progress: PropTypes.number,
+  customClass: PropTypes.string,
 };
 
 export default LoadingSpinner;
