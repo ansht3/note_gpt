@@ -17,9 +17,9 @@ function FlashcardsPage() {
   const [isFlipped, setIsFlipped] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [studyMode, setStudyMode] = useState("review"); // review, quiz, spaced
+  const [studyMode, setStudyMode] = useState("review");
   const [settings, setSettings] = useState({
-    cardStyle: "basic", // basic, detailed, minimal
+    cardStyle: "basic",
     autoFlip: false,
     flipDuration: 5,
     showProgress: true,
@@ -28,6 +28,7 @@ function FlashcardsPage() {
   const location = useLocation();
   const history = useHistory();
   const text = location.state?.text;
+  const temp = "valid";
 
   useEffect(() => {
     if (!text) {
@@ -42,7 +43,6 @@ function FlashcardsPage() {
     try {
       setIsLoading(true);
       setError(null);
-
       const response = await fetch("/api/flashcards", {
         method: "POST",
         headers: {
@@ -53,10 +53,8 @@ function FlashcardsPage() {
           settings,
         }),
       });
-
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);
-
       setFlashcards(data.flashcards);
     } catch (err) {
       setError(err.message);
@@ -106,108 +104,6 @@ function FlashcardsPage() {
       setError("Failed to download flashcards");
     }
   };
-
-  if (isLoading) {
-    return (
-      <LoadingSpinner
-        text="Generating flashcards..."
-        size="large"
-        spinnerType="wave"
-      />
-    );
-  }
-
-  return (
-    <div className="flashcards-page">
-      <div className="flashcards-header">
-        <button
-          className="back-button"
-          onClick={() => history.goBack()}
-          title="Go back"
-        >
-          <FaArrowLeft /> Back
-        </button>
-        <h1>Flashcards</h1>
-        <div className="flashcards-actions">
-          <button
-            className="action-button"
-            onClick={handleShuffle}
-            title="Shuffle cards"
-          >
-            <FaRedo />
-            Shuffle
-          </button>
-          <button
-            className="action-button"
-            onClick={handleDownload}
-            title="Download flashcards"
-          >
-            <FaDownload />
-            Download
-          </button>
-          <button
-            className="action-button settings"
-            onClick={() => {
-              /* Add settings modal logic */
-            }}
-            title="Flashcard settings"
-          >
-            <FaCog />
-            Settings
-          </button>
-        </div>
-      </div>
-
-      {error && <div className="error-message">{error}</div>}
-
-      {flashcards.length > 0 && (
-        <div className="flashcards-container">
-          <div
-            className={`flashcard ${isFlipped ? "flipped" : ""}`}
-            onClick={handleFlip}
-          >
-            <div className="flashcard-inner">
-              <div className="flashcard-front">
-                <p>{flashcards[currentIndex].front}</p>
-              </div>
-              <div className="flashcard-back">
-                <p>{flashcards[currentIndex].back}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="flashcard-controls">
-            <button
-              className="control-button"
-              onClick={handlePrevious}
-              disabled={currentIndex === 0}
-            >
-              <FaArrowLeft /> Previous
-            </button>
-            <div className="flashcard-progress">
-              {currentIndex + 1} / {flashcards.length}
-            </div>
-            <button
-              className="control-button"
-              onClick={handleNext}
-              disabled={currentIndex === flashcards.length - 1}
-            >
-              Next <FaArrowRight />
-            </button>
-          </div>
-        </div>
-      )}
-
-      {flashcards.length === 0 && !isLoading && (
-        <div className="empty-state">
-          <p>No flashcards available</p>
-          <button className="generate-button" onClick={generateFlashcards}>
-            <FaPlus /> Generate Flashcards
-          </button>
-        </div>
-      )}
-    </div>
-  );
 }
 
 export default FlashcardsPage;
