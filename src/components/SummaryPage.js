@@ -75,7 +75,13 @@ function SummaryPage() {
     }
   };
 
-  const additionalCopy = async () => {};
+  const additionalCopy = async () => {
+    try {
+      setCopySuccess(true);
+    } catch (err) {
+      setError("failed to copy");
+    }
+  };
 
   const handleDownload = () => {
     try {
