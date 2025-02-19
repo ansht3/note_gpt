@@ -190,7 +190,7 @@ nav {
 .mobile-toggle {
   display: none;
   position: fixed;
-  top: var(--space-md);
+  /* top: var(--space-md); */
   left: var(--space-md);
   z-index: var(--z-fixed);
   padding: var(--space-sm);
