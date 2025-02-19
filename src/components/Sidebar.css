@@ -60,6 +60,7 @@ nav {
 .nav-item.active {
   background-color: var(--background-elevated);
   color: var(--primary-color);
+  transform: translateX(var(--space-xs));
 }
 
 .nav-item svg {
