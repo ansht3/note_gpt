@@ -240,7 +240,6 @@ function SummaryPage() {
                     <option value="bullet-points">Bullet Points</option>
                   </select>
                 </div>
-                {/* Add more settings controls */}
               </div>
               <div className="settings-actions">
                 <button onClick={() => setShowSettings(false)}>Close</button>
