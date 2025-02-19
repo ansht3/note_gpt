@@ -99,7 +99,6 @@ nav {
   transform: translateY(-50%) scale(1.05);
 }
 
-/* Active state animations */
 .nav-item::after {
   content: "";
   position: absolute;
