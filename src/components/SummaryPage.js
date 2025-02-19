@@ -75,6 +75,8 @@ function SummaryPage() {
     }
   };
 
+  const additionalCopy = async () => {};
+
   const handleDownload = () => {
     try {
       const blob = new Blob([editedSummary], { type: "text/plain" });
