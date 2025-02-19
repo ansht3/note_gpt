@@ -75,14 +75,6 @@ function SummaryPage() {
     }
   };
 
-  const additionalCopy = async () => {
-    try {
-      setCopySuccess(true);
-    } catch (err) {
-      setError("failed to copy");
-    }
-  };
-
   const handleDownload = () => {
     try {
       const blob = new Blob([editedSummary], { type: "text/plain" });
