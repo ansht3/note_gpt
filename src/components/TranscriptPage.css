@@ -34,6 +34,7 @@
 
 .video-metadata {
   color: var(--text-secondary);
+  display: none;
   font-size: var(--font-size-sm);
 }
 
