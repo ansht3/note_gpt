@@ -41,6 +41,7 @@
 .transcript-actions {
   display: flex;
   gap: var(--space-sm);
+  flex: auto;
   flex-wrap: wrap;
 }
 
