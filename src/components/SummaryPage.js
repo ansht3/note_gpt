@@ -244,7 +244,7 @@ function SummaryPage() {
               <div className="settings-actions">
                 <button onClick={() => setShowSettings(false)}>Close</button>
                 <button onClick={generateSummary} className="primary">
-                  Apply & Regenerate
+                  Regenerate Notes
                 </button>
               </div>
             </div>
