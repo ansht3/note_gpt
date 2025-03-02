@@ -32,6 +32,7 @@ function Sidebar() {
           path: "/presentation",
           label: "AI Presentation",
           icon: <FaSlideshare />,
+          icon: <FaSlideshare />,
         },
       ],
     },
