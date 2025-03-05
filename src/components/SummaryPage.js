@@ -16,6 +16,10 @@ import ErrorBoundary from "./ErrorBoundary";
 import api from "../services/api";
 import "./SummaryPage.css";
 
+function myButton() {
+  return <button>New Buton</button>;
+}
+
 function SummaryPage() {
   const [summary, setSummary] = useState("");
   const [isLoading, setIsLoading] = useState(true);
