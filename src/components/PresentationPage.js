@@ -22,6 +22,9 @@ function PresentationPage() {
       setError(null);
 
       const text = location.state?.text || "";
+      if (!text) {
+        throw new Error("No content provided for presentation generation");
+      }
 
       const response = await api.ai.generateSlides(text, settings);
       if (response.success) {
