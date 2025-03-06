@@ -79,6 +79,7 @@ function SummaryPage() {
     }
   };
 
+  function myButton() {}
   const handleDownload = () => {
     try {
       const blob = new Blob([editedSummary], { type: "text/plain" });
