@@ -16,10 +16,6 @@ import ErrorBoundary from "./ErrorBoundary";
 import api from "../services/api";
 import "./SummaryPage.css";
 
-function myButton() {
-  return <button>New Buton</button>;
-}
-
 function SummaryPage() {
   const [summary, setSummary] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -27,15 +23,16 @@ function SummaryPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [editedSummary, setEditedSummary] = useState("");
   const [copySuccess, setCopySuccess] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+
   const [settings, setSettings] = useState({
-    style: "concise", // concise, detailed, bullet-points
-    length: "medium", // short, medium, long
-    tone: "formal", // formal, casual, technical
-    language: "en", // en, es, fr, etc.
+    style: "concise",
+    length: "medium",
+    tone: "formal",
+    language: "en",
     includeKeyPoints: true,
     includeSources: false,
   });
-  const [showSettings, setShowSettings] = useState(false);
 
   const location = useLocation();
   const history = useHistory();
@@ -43,14 +40,14 @@ function SummaryPage() {
   const videoInfo = location.state?.videoInfo;
 
   const generateSummary = useCallback(async () => {
+    if (!content) {
+      setError("No content provided for summarization");
+      return;
+    }
+
     try {
       setIsLoading(true);
       setError(null);
-
-      if (!content) {
-        throw new Error("No content provided for summarization");
-      }
-
       const response = await api.ai.generateSummary(content, settings);
       setSummary(response.summary);
       setEditedSummary(response.summary);
@@ -64,9 +61,9 @@ function SummaryPage() {
   useEffect(() => {
     if (!content) {
       history.push("/");
-      return;
+    } else {
+      generateSummary();
     }
-    generateSummary();
   }, [content, generateSummary, history]);
 
   const handleCopy = async () => {
@@ -74,25 +71,23 @@ function SummaryPage() {
       await navigator.clipboard.writeText(editedSummary);
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 2000);
-    } catch (err) {
+    } catch {
       setError("Failed to copy summary");
     }
   };
 
-  function myButton() {}
   const handleDownload = () => {
     try {
       const blob = new Blob([editedSummary], { type: "text/plain" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      const title = videoInfo?.title || "content";
-      a.download = `summary-${title}.txt`;
+      a.download = `summary-${videoInfo?.title || "content"}.txt`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-    } catch (err) {
+    } catch {
       setError("Failed to download summary");
     }
   };
@@ -100,13 +95,6 @@ function SummaryPage() {
   const handleSaveEdit = () => {
     setSummary(editedSummary);
     setIsEditing(false);
-  };
-
-  const handleSettingsChange = (newSettings) => {
-    setSettings((prev) => ({
-      ...prev,
-      ...newSettings,
-    }));
   };
 
   if (isLoading) {
@@ -125,12 +113,11 @@ function SummaryPage() {
         <div className="summary-header">
           <button
             className="back-button"
-            onClick={() => history.goBack()}
+            onClick={history.goBack}
             title="Go back"
           >
             <FaArrowLeft /> Back
           </button>
-
           {videoInfo && (
             <div className="video-info">
               <h1>{videoInfo.title}</h1>
@@ -139,35 +126,27 @@ function SummaryPage() {
               </p>
             </div>
           )}
-
           <div className="summary-actions">
             <button
               className="action-button"
               onClick={() => setIsEditing(!isEditing)}
-              title={isEditing ? "Save changes" : "Edit summary"}
             >
-              {isEditing ? <FaRegSave /> : <FaRegEdit />}
+              {isEditing ? <FaRegSave /> : <FaRegEdit />}{" "}
               {isEditing ? "Save" : "Edit"}
             </button>
             <button
               className={`action-button ${copySuccess ? "success" : ""}`}
               onClick={handleCopy}
-              title="Copy to clipboard"
             >
-              {copySuccess ? <FaCheck /> : <FaRegCopy />}
+              {copySuccess ? <FaCheck /> : <FaRegCopy />}{" "}
               {copySuccess ? "Copied!" : "Copy"}
             </button>
-            <button
-              className="action-button"
-              onClick={handleDownload}
-              title="Download summary"
-            >
+            <button className="action-button" onClick={handleDownload}>
               <FaDownload /> Download
             </button>
             <button
               className="action-button"
               onClick={generateSummary}
-              title="Regenerate summary"
               disabled={isLoading}
             >
               <FaRedo /> Regenerate
@@ -175,22 +154,19 @@ function SummaryPage() {
             <button
               className="action-button settings"
               onClick={() => setShowSettings(!showSettings)}
-              title="Summary settings"
             >
               <FaCog /> Settings
             </button>
           </div>
         </div>
-
         {error && (
           <div className="error-message" role="alert">
-            {error}
+            {error}{" "}
             <button onClick={generateSummary} className="retry-button">
               Retry
             </button>
           </div>
         )}
-
         <div className="summary-content">
           {isEditing ? (
             <textarea
@@ -199,7 +175,6 @@ function SummaryPage() {
               className="summary-editor"
               placeholder="Summary content..."
               spellCheck="true"
-              aria-label="Edit summary"
             />
           ) : (
             <div className="summary-text">
@@ -209,7 +184,6 @@ function SummaryPage() {
             </div>
           )}
         </div>
-
         {isEditing && (
           <div className="edit-actions">
             <button
@@ -226,25 +200,22 @@ function SummaryPage() {
             </button>
           </div>
         )}
-
         {showSettings && (
           <div className="settings-modal">
             <div className="settings-content">
               <h2>Summary Settings</h2>
-              <div className="settings-grid">
-                <div className="setting-group">
-                  <label>Style</label>
-                  <select
-                    value={settings.style}
-                    onChange={(e) =>
-                      handleSettingsChange({ style: e.target.value })
-                    }
-                  >
-                    <option value="concise">Concise</option>
-                    <option value="detailed">Detailed</option>
-                    <option value="bullet-points">Bullet Points</option>
-                  </select>
-                </div>
+              <div className="settings-group">
+                <label>Style</label>
+                <select
+                  value={settings.style}
+                  onChange={(e) =>
+                    setSettings({ ...settings, style: e.target.value })
+                  }
+                >
+                  <option value="concise">Concise</option>
+                  <option value="detailed">Detailed</option>
+                  <option value="bullet-points">Bullet Points</option>
+                </select>
               </div>
               <div className="settings-actions">
                 <button onClick={() => setShowSettings(false)}>Close</button>
