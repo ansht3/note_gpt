@@ -5,6 +5,9 @@ const videoController = require("../controllers/videoController");
 // Route to fetch video transcript
 router.get("/transcript", videoController.getVideoTranscript);
 
+// Route to generate summary
+router.post("/generate-summary", videoController.generateSummary);
+
 // Route to generate flashcards
 router.post("/generate-flashcards", videoController.generateFlashcards);
 
