@@ -8,17 +8,6 @@
   animation: fadeIn var(--transition-normal);
 }
 
-.error-content {
-  max-width: 600px;
-  padding: var(--space-xl);
-  background-color: var(--background-light);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
-  position: relative;
-  overflow: hidden;
-  animation: slideUp var(--transition-normal);
-}
-
 .error-content::before {
   content: "!";
   position: absolute;
