@@ -10,6 +10,7 @@
 
 .error-content {
   max-width: 600px;
+  background-color: var(--background-light);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
   position: relative;
