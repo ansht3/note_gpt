@@ -14,7 +14,6 @@
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
   position: relative;
-  overflow: hidden;
   animation: slideUp var(--transition-normal);
 }
 
