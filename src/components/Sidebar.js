@@ -140,7 +140,6 @@ function Sidebar() {
               <span>Profile</span>
             </Link>
           </div>
-          <button>Hello</button>
         </div>
       </div>
 
