@@ -130,6 +130,8 @@ function Sidebar() {
             <span>{isDarkMode ? "Light Mode" : "Dark Mode"}</span>
           </button>
 
+          <div></div>
+
           <div className="footer-actions">
             <Link to="/settings" className="footer-link">
               <FaCog />
