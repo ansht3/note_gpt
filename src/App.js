@@ -22,21 +22,6 @@ function App() {
           <div className="app">
             <Sidebar />
             <main className="main-content">
-              <div className="top-bar">
-                <div className="theme-toggle">
-                  <label className="switch">
-                    <input type="checkbox" />
-                    <span className="slider round"></span>
-                  </label>
-                  <span>Dark Mode</span>
-                </div>
-                <select className="language-select">
-                  <option value="en">English</option>
-                  <option value="es">Español</option>
-                  <option value="fr">Français</option>
-                  <option value="de">Deutsch</option>
-                </select>
-              </div>
               <Suspense
                 fallback={
                   <div className="loading-container">

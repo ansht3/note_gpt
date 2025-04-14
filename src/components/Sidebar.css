@@ -252,3 +252,28 @@ nav {
     padding-top: calc(var(--space-xl) * 2);
   }
 }
+
+.footer-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.footer-link {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 4px;
+  text-decoration: none;
+  color: inherit;
+  transition: background-color 0.2s;
+}
+
+.footer-link:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.footer-link svg {
+  margin-right: 10px;
+}

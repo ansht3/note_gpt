@@ -121,14 +121,14 @@ function Sidebar() {
         </nav>
 
         <div className="sidebar-footer">
-          <button
+          {/* <button
             className="theme-toggle"
             onClick={toggleTheme}
             aria-label={`Switch to ${isDarkMode ? "light" : "dark"} mode`}
           >
             <FaLightbulb />
             <span>{isDarkMode ? "Light Mode" : "Dark Mode"}</span>
-          </button>
+          </button> */}
 
           <div></div>
 
