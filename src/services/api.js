@@ -9,7 +9,18 @@ const apiClient = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  timeout: 30000, // 30 second timeout
 });
+
+// Add response interceptor for error handling
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const errorMessage = error.response?.data?.error || error.message;
+    console.error("API Error:", errorMessage);
+    return Promise.reject(new Error(errorMessage));
+  }
+);
 
 // API service methods
 const api = {
@@ -17,7 +28,31 @@ const api = {
   videos: {
     async getTranscript(url) {
       try {
-        const response = await apiClient.post("/videos/transcript", { url });
+        const response = await apiClient.get("/videos/transcript", {
+          params: { url },
+        });
+        return response.data;
+      } catch (error) {
+        throw this.handleError(error);
+      }
+    },
+
+    async validateVideo(url) {
+      try {
+        const response = await apiClient.get("/videos/validate", {
+          params: { url },
+        });
+        return response.data;
+      } catch (error) {
+        throw this.handleError(error);
+      }
+    },
+
+    async getVideoMetadata(url) {
+      try {
+        const response = await apiClient.get("/videos/metadata", {
+          params: { url },
+        });
         return response.data;
       } catch (error) {
         throw this.handleError(error);
@@ -43,31 +78,28 @@ const api = {
 
   // AI processing endpoints
   ai: {
-    async generateSummary(text) {
+    async generateSummary(transcript) {
       try {
-        const response = await apiClient.post("/ai/summary", { text });
+        const response = await apiClient.post("/ai/summary", { transcript });
         return response.data;
       } catch (error) {
         throw this.handleError(error);
       }
     },
 
-    async generateFlashcards(text, options = {}) {
+    async generateFlashcards(transcript) {
       try {
-        const response = await apiClient.post("/ai/flashcards", {
-          text,
-          ...options,
-        });
+        const response = await apiClient.post("/ai/flashcards", { transcript });
         return response.data;
       } catch (error) {
         throw this.handleError(error);
       }
     },
 
-    async generateSlides(text, options = {}) {
+    async generateSlides(transcript, options) {
       try {
         const response = await apiClient.post("/ai/slides", {
-          text,
+          transcript,
           options,
         });
         return response.data;
@@ -89,18 +121,21 @@ const api = {
     },
   },
 
-  // Error handling
+  // Error handling helper
   handleError(error) {
     if (error.response) {
       // Server responded with error
-      const message = error.response.data.message || "An error occurred";
-      return new Error(message);
+      const message =
+        error.response.data?.error ||
+        error.response.data?.message ||
+        "Server error";
+      throw new Error(message);
     } else if (error.request) {
       // Request made but no response
-      return new Error("No response from server");
+      throw new Error("No response from server. Please check your connection.");
     } else {
       // Request setup error
-      return new Error("Error setting up request");
+      throw new Error(error.message || "An error occurred");
     }
   },
 
@@ -113,18 +148,5 @@ const api = {
     }
   },
 };
-
-// Response interceptor
-apiClient.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    // Handle global error responses
-    if (error.response?.status === 401) {
-      // Handle unauthorized access
-      // You might want to redirect to login or refresh token
-    }
-    return Promise.reject(error);
-  }
-);
 
 export default api;

@@ -2,6 +2,12 @@ const axios = require("axios");
 const youtubeTranscript = require("youtube-transcript-api"); // Get YouTube transcript
 const { getTranscript } = require("youtube-transcript");
 const { AIService } = require("../services/aiService");
+const { YouTubeService } = require("../services/youtubeService");
+const { ApiError } = require("../utils/errors");
+const { logger } = require("../utils/logger");
+const { cache } = require("../utils/cache");
+
+const youtubeService = new YouTubeService();
 const aiService = new AIService();
 
 const getTranscript = async (videoUrl) => {
@@ -21,38 +27,169 @@ exports.getVideoData = async (req, res) => {
   }
 };
 
-const videoController = {
-  async getVideoTranscript(req, res) {
+class VideoController {
+  constructor() {
+    this.cacheTimeout = 24 * 60 * 60 * 1000; // 24 hours
+  }
+
+  async validateVideo(req, res, next) {
     try {
       const { url } = req.query;
-      const videoId = extractVideoId(url);
 
-      if (!videoId) {
-        return res.status(400).json({
-          success: false,
-          error: "Invalid YouTube URL",
-        });
+      if (!url) {
+        throw new ApiError("Video URL is required", 400);
       }
 
-      const transcript = await getTranscript(videoId);
-      const formattedTranscript = transcript.map((item) => item.text).join(" ");
+      const videoId = youtubeService.extractVideoId(url);
+      if (!videoId) {
+        throw new ApiError("Invalid YouTube URL", 400);
+      }
 
-      res.json({
-        success: true,
-        transcript: formattedTranscript,
-      });
+      // Check cache first
+      const cacheKey = `validation:${videoId}`;
+      const cachedValidation = await cache.get(cacheKey);
+      if (cachedValidation) {
+        return res.json(cachedValidation);
+      }
+
+      // Validate video exists and is accessible
+      const videoInfo = await youtubeService.getVideoInfo(videoId);
+      const hasTranscript = await youtubeService.checkTranscriptAvailability(
+        videoId
+      );
+
+      const validation = {
+        valid: true,
+        videoId,
+        hasTranscript,
+        duration: videoInfo.duration,
+        isAccessible: true,
+      };
+
+      // Cache validation result
+      await cache.set(cacheKey, validation, 3600); // Cache for 1 hour
+
+      res.json(validation);
     } catch (error) {
-      console.error("Transcript error:", error);
-      res.status(500).json({
-        success: false,
-        error: "Failed to fetch transcript",
-      });
+      logger.error("Error in validateVideo:", error);
+      next(error);
     }
-  },
+  }
 
-  async generateSummary(req, res) {
+  async getVideoMetadata(req, res, next) {
+    try {
+      const { url } = req.query;
+
+      if (!url) {
+        throw new ApiError("Video URL is required", 400);
+      }
+
+      const videoId = youtubeService.extractVideoId(url);
+      if (!videoId) {
+        throw new ApiError("Invalid YouTube URL", 400);
+      }
+
+      // Check cache
+      const cacheKey = `metadata:${videoId}`;
+      const cachedMetadata = await cache.get(cacheKey);
+      if (cachedMetadata) {
+        return res.json(cachedMetadata);
+      }
+
+      const videoInfo = await youtubeService.getVideoInfo(videoId);
+      const hasTranscript = await youtubeService.checkTranscriptAvailability(
+        videoId
+      );
+      const availableLanguages =
+        await youtubeService.getAvailableTranscriptLanguages(videoId);
+
+      const metadata = {
+        id: videoId,
+        title: videoInfo.title,
+        author: videoInfo.author,
+        duration: videoInfo.duration,
+        thumbnail: videoInfo.thumbnail,
+        description: videoInfo.description,
+        publishDate: videoInfo.publishDate,
+        views: videoInfo.views,
+        hasTranscript,
+        availableLanguages,
+      };
+
+      // Cache metadata
+      await cache.set(cacheKey, metadata, this.cacheTimeout);
+
+      res.json(metadata);
+    } catch (error) {
+      logger.error("Error in getVideoMetadata:", error);
+      next(error);
+    }
+  }
+
+  async getVideoTranscript(req, res, next) {
+    try {
+      const { url } = req.query;
+
+      if (!url) {
+        throw new ApiError("Video URL is required", 400);
+      }
+
+      const videoId = youtubeService.extractVideoId(url);
+      if (!videoId) {
+        throw new ApiError("Invalid YouTube URL", 400);
+      }
+
+      // Check cache
+      const cacheKey = `transcript:${videoId}`;
+      const cachedTranscript = await cache.get(cacheKey);
+      if (cachedTranscript) {
+        return res.json(cachedTranscript);
+      }
+
+      // Get video info and transcript
+      const [videoInfo, transcript] = await Promise.all([
+        youtubeService.getVideoInfo(videoId),
+        youtubeService.getTranscript(videoId),
+      ]);
+
+      if (!transcript) {
+        throw new ApiError("No transcript available for this video", 404);
+      }
+
+      const response = {
+        videoInfo: {
+          id: videoId,
+          title: videoInfo.title,
+          author: videoInfo.author,
+          duration: videoInfo.duration,
+          thumbnail: videoInfo.thumbnail,
+          description: videoInfo.description,
+          publishDate: videoInfo.publishDate,
+          views: videoInfo.views,
+        },
+        transcript: transcript.text,
+        language: transcript.language,
+        isAutoGenerated: transcript.isAutoGenerated,
+      };
+
+      // Cache transcript
+      await cache.set(cacheKey, response, this.cacheTimeout);
+
+      res.json(response);
+    } catch (error) {
+      logger.error("Error in getVideoTranscript:", error);
+      next(error);
+    }
+  }
+
+  async generateSummary(req, res, next) {
     try {
       const { transcript } = req.body;
+
+      if (!transcript) {
+        throw new ApiError("Transcript is required", 400);
+      }
+
       const summary = await aiService.generateSummary(transcript);
 
       res.json({
@@ -60,16 +197,19 @@ const videoController = {
         summary,
       });
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        error: "Failed to generate summary",
-      });
+      logger.error("Error in generateSummary:", error);
+      next(error);
     }
-  },
+  }
 
-  async generateFlashcards(req, res) {
+  async generateFlashcards(req, res, next) {
     try {
       const { transcript } = req.body;
+
+      if (!transcript) {
+        throw new ApiError("Transcript is required", 400);
+      }
+
       const flashcards = await aiService.generateFlashcards(transcript);
 
       res.json({
@@ -77,16 +217,19 @@ const videoController = {
         flashcards,
       });
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        error: "Failed to generate flashcards",
-      });
+      logger.error("Error in generateFlashcards:", error);
+      next(error);
     }
-  },
+  }
 
-  async generateSlides(req, res) {
+  async generateSlides(req, res, next) {
     try {
       const { transcript, options } = req.body;
+
+      if (!transcript) {
+        throw new ApiError("Transcript is required", 400);
+      }
+
       const slides = await aiService.generateSlides(transcript, options);
 
       res.json({
@@ -94,12 +237,10 @@ const videoController = {
         slides,
       });
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        error: "Failed to generate slides",
-      });
+      logger.error("Error in generateSlides:", error);
+      next(error);
     }
-  },
+  }
 
   async askQuestion(req, res) {
     try {
@@ -116,8 +257,8 @@ const videoController = {
         error: "Failed to generate answer",
       });
     }
-  },
-};
+  }
+}
 
 function extractVideoId(url) {
   const regExp =
@@ -126,4 +267,4 @@ function extractVideoId(url) {
   return match && match[7].length === 11 ? match[7] : null;
 }
 
-module.exports = videoController;
+module.exports = new VideoController();

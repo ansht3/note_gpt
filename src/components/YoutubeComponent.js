@@ -7,7 +7,7 @@ import {
   FaCheck,
   FaInfoCircle,
 } from "react-icons/fa";
-import axios from "axios";
+import api from "../services/api";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useTheme } from "../contexts/ThemeContext";
 import "./YoutubeComponent.css";
@@ -19,6 +19,7 @@ const YoutubeComponent = () => {
   const [isValidUrl, setIsValidUrl] = useState(false);
   const [videoInfo, setVideoInfo] = useState(null);
   const [showPreview, setShowPreview] = useState(false);
+  const [validationStatus, setValidationStatus] = useState(null);
 
   const history = useHistory();
   const { t } = useLanguage();
@@ -41,40 +42,35 @@ const YoutubeComponent = () => {
     validateUrl();
   }, [url, t]);
 
-  const extractVideoId = (url) => {
-    const regExp =
-      /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-    const match = url.match(regExp);
-    return match && match[2].length === 11 ? match[2] : null;
-  };
+  const validateVideo = useCallback(async (videoUrl) => {
+    try {
+      const response = await api.videos.validateVideo(videoUrl);
+      setValidationStatus(response);
+      return response.valid;
+    } catch (err) {
+      setError(err.message);
+      return false;
+    }
+  }, []);
 
-  const fetchVideoInfo = useCallback(
-    async (videoId) => {
-      try {
-        const response = await axios.get(
-          `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&part=snippet,contentDetails&key=${process.env.REACT_APP_YOUTUBE_API_KEY}`
-        );
-
-        if (response.data.items.length === 0) {
-          throw new Error(t("errors.videoNotFound"));
-        }
-
-        const videoData = response.data.items[0];
-        setVideoInfo({
-          id: videoId,
-          title: videoData.snippet.title,
-          thumbnail: videoData.snippet.thumbnails.high.url,
-          duration: videoData.contentDetails.duration,
-          author: videoData.snippet.channelTitle,
-        });
-        setShowPreview(true);
-      } catch (err) {
-        setError(t("errors.fetchVideoInfoFailed"));
-        console.error("Error fetching video info:", err);
-      }
-    },
-    [t]
-  );
+  const fetchVideoInfo = useCallback(async (videoUrl) => {
+    try {
+      const response = await api.videos.getVideoMetadata(videoUrl);
+      setVideoInfo({
+        id: response.id,
+        title: response.title,
+        thumbnail: response.thumbnail,
+        duration: response.duration,
+        author: response.author,
+        hasTranscript: response.hasTranscript,
+      });
+      setShowPreview(true);
+      return response;
+    } catch (err) {
+      setError(err.message);
+      return null;
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -84,24 +80,29 @@ const YoutubeComponent = () => {
     setError(null);
 
     try {
-      const videoId = extractVideoId(url);
-      if (!videoId) {
-        throw new Error(t("errors.invalidVideoId"));
+      // First validate the video
+      const isValid = await validateVideo(url);
+      if (!isValid) {
+        throw new Error(t("errors.invalidVideo"));
       }
 
-      // Fetch video info first
-      await fetchVideoInfo(videoId);
+      // Then fetch video info
+      const videoData = await fetchVideoInfo(url);
+      if (!videoData) {
+        throw new Error(t("errors.fetchVideoInfoFailed"));
+      }
 
-      // Then fetch transcript
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/videos/transcript`,
-        { url }
-      );
+      if (!videoData.hasTranscript) {
+        throw new Error(t("errors.noTranscriptAvailable"));
+      }
+
+      // Finally fetch transcript
+      const response = await api.videos.getTranscript(url);
 
       // Navigate to transcript page with data
       history.push("/transcript", {
-        text: response.data.transcript,
-        videoInfo,
+        text: response.transcript,
+        videoInfo: videoData,
         settings: {
           fontSize: "medium",
           lineSpacing: "normal",
@@ -110,12 +111,8 @@ const YoutubeComponent = () => {
         },
       });
     } catch (err) {
-      setError(
-        err.response?.data?.message ||
-          err.message ||
-          t("errors.transcriptFetchFailed")
-      );
-      console.error("API error:", err);
+      setError(err.message);
+      console.error("Error processing video:", err);
     } finally {
       setLoading(false);
     }
@@ -125,6 +122,7 @@ const YoutubeComponent = () => {
     setUrl(e.target.value);
     setShowPreview(false);
     setVideoInfo(null);
+    setValidationStatus(null);
   };
 
   const handleClear = () => {
@@ -132,6 +130,7 @@ const YoutubeComponent = () => {
     setError(null);
     setShowPreview(false);
     setVideoInfo(null);
+    setValidationStatus(null);
   };
 
   return (
@@ -207,6 +206,11 @@ const YoutubeComponent = () => {
               <h3>{videoInfo.title}</h3>
               <p className="video-author">{videoInfo.author}</p>
               <p className="video-duration">{videoInfo.duration}</p>
+              {!videoInfo.hasTranscript && (
+                <p className="video-warning">
+                  {t("youtube.noTranscriptWarning")}
+                </p>
+              )}
             </div>
           </div>
         </div>
