@@ -1,0 +1,265 @@
+.youtube-component {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: var(--bg-primary);
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.youtube-component.dark-mode {
+  background: var(--bg-primary-dark);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.youtube-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.youtube-icon {
+  font-size: 3rem;
+  color: #ff0000;
+  margin-bottom: 1rem;
+}
+
+.youtube-header h1 {
+  font-size: 2rem;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.youtube-description {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  line-height: 1.5;
+}
+
+.youtube-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 1rem;
+  padding-right: 3rem;
+  font-size: 1.1rem;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  transition: all 0.3s ease;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.input-group input.error {
+  border-color: var(--error-color);
+}
+
+.input-group input.valid {
+  border-color: var(--success-color);
+}
+
+.clear-button {
+  position: absolute;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.3s ease;
+}
+
+.clear-button:hover {
+  color: var(--text-primary);
+}
+
+.submit-button {
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: white;
+  background: var(--primary-color);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.submit-button:hover:not(:disabled) {
+  background: var(--primary-color-dark);
+  transform: translateY(-1px);
+}
+
+.submit-button:disabled {
+  background: var(--disabled-color);
+  cursor: not-allowed;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--error-color);
+  font-size: 0.9rem;
+  padding: 0.5rem;
+  background: var(--error-bg);
+  border-radius: 4px;
+}
+
+.success-message {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--success-color);
+  font-size: 0.9rem;
+  padding: 0.5rem;
+  background: var(--success-bg);
+  border-radius: 4px;
+}
+
+.video-preview {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.video-preview h2 {
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.preview-content {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.video-thumbnail {
+  width: 240px;
+  height: 135px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.video-details {
+  flex: 1;
+}
+
+.video-details h3 {
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  font-size: 1.2rem;
+}
+
+.video-author {
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.video-duration {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.youtube-info {
+  margin-top: 2rem;
+  padding: 1rem;
+  background: var(--info-bg);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--info-color);
+}
+
+.youtube-info svg {
+  font-size: 1.2rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .youtube-component {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+
+  .preview-content {
+    flex-direction: column;
+  }
+
+  .video-thumbnail {
+    width: 100%;
+    height: auto;
+  }
+}
+
+/* CSS Variables */
+:root {
+  --primary-color: #007bff;
+  --primary-color-dark: #0056b3;
+  --error-color: #dc3545;
+  --success-color: #28a745;
+  --disabled-color: #6c757d;
+  --border-color: #dee2e6;
+  --text-primary: #212529;
+  --text-secondary: #6c757d;
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --error-bg: rgba(220, 53, 69, 0.1);
+  --success-bg: rgba(40, 167, 69, 0.1);
+  --info-bg: rgba(0, 123, 255, 0.1);
+  --info-color: #0056b3;
+}
+
+/* Dark Mode Variables */
+[data-theme="dark"] {
+  --bg-primary: #1a1a1a;
+  --bg-primary-dark: #2d2d2d;
+  --bg-secondary: #2d2d2d;
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0a0;
+  --border-color: #404040;
+  --error-bg: rgba(220, 53, 69, 0.2);
+  --success-bg: rgba(40, 167, 69, 0.2);
+  --info-bg: rgba(0, 123, 255, 0.2);
+}
