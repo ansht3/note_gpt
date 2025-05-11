@@ -1,5 +1,5 @@
 import React from "react";
-import PropTypes from "prop-types";
+import { FaExclamationTriangle, FaRedo, FaHome } from "react-icons/fa";
 import "./ErrorBoundary.css";
 
 class ErrorBoundary extends React.Component {
@@ -9,7 +9,9 @@ class ErrorBoundary extends React.Component {
       hasError: false,
       error: null,
       errorInfo: null,
-      errorCount: 0,
+      retryCount: 0,
+      lastErrorTime: null,
+      errorHistory: [],
     };
   }
 
@@ -18,61 +20,137 @@ class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    // Log error to your error reporting service
-    console.error("Error caught by boundary:", error, errorInfo);
+    // Log error to error reporting service
+    this.logError(error, errorInfo);
 
+    // Update state with error details
     this.setState((prevState) => ({
+      error,
       errorInfo,
-      errorCount: prevState.errorCount + 1,
+      lastErrorTime: new Date(),
+      errorHistory: [
+        ...prevState.errorHistory,
+        {
+          error,
+          errorInfo,
+          timestamp: new Date(),
+        },
+      ].slice(-5), // Keep last 5 errors
     }));
-
-    // Optional: Send error to your analytics service
-    if (this.props.onError) {
-      this.props.onError(error, errorInfo);
-    }
   }
 
+  logError = (error, errorInfo) => {
+    // Log to console in development
+    if (process.env.NODE_ENV === "development") {
+      console.error("Error caught by boundary:", error);
+      console.error("Error info:", errorInfo);
+    }
+
+    // Here you would typically send to your error reporting service
+    // Example: Sentry.captureException(error);
+  };
+
   handleRetry = () => {
+    this.setState((prevState) => ({
+      hasError: false,
+      error: null,
+      errorInfo: null,
+      retryCount: prevState.retryCount + 1,
+    }));
+  };
+
+  handleReset = () => {
     this.setState({
       hasError: false,
       error: null,
       errorInfo: null,
+      retryCount: 0,
+      errorHistory: [],
     });
   };
 
-  handleRefresh = () => {
-    window.location.reload();
+  handleGoHome = () => {
+    window.location.href = "/";
+  };
+
+  renderErrorDetails = () => {
+    const { error, errorInfo, errorHistory } = this.state;
+
+    if (process.env.NODE_ENV !== "development") {
+      return null;
+    }
+
+    return (
+      <div className="error-details">
+        <h3>Error Details (Development Only)</h3>
+        <div className="error-stack">
+          <h4>Error Message:</h4>
+          <pre>{error?.toString()}</pre>
+
+          <h4>Component Stack:</h4>
+          <pre>{errorInfo?.componentStack}</pre>
+        </div>
+
+        {errorHistory.length > 0 && (
+          <div className="error-history">
+            <h4>Recent Errors:</h4>
+            <ul>
+              {errorHistory.map((err, index) => (
+                <li key={index}>
+                  <span className="error-time">
+                    {err.timestamp.toLocaleTimeString()}
+                  </span>
+                  <span className="error-message">{err.error.toString()}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    );
   };
 
   render() {
     if (this.state.hasError) {
-      const isRecoverable = this.state.errorCount < 3;
-
       return (
         <div className="error-boundary">
           <div className="error-content">
+            <FaExclamationTriangle className="error-icon" />
             <h1>Something went wrong</h1>
-            <div className="error-details">
-              <p>
-                {this.state.error?.message || "An unexpected error occurred"}
-              </p>
-              {this.props.showDetails && (
-                <details>
-                  <summary>Technical Details</summary>
-                  <pre>{this.state.errorInfo?.componentStack}</pre>
-                </details>
-              )}
-            </div>
+            <p>
+              We apologize for the inconvenience. Please try one of the
+              following:
+            </p>
+
             <div className="error-actions">
-              {isRecoverable && (
-                <button onClick={this.handleRetry} className="retry-button">
-                  Try Again
-                </button>
-              )}
-              <button onClick={this.handleRefresh} className="refresh-button">
-                Refresh Page
+              <button
+                className="retry-button"
+                onClick={this.handleRetry}
+                disabled={this.state.retryCount >= 3}
+              >
+                <FaRedo />
+                {this.state.retryCount >= 3
+                  ? "Max retries reached"
+                  : "Try Again"}
+              </button>
+
+              <button className="reset-button" onClick={this.handleReset}>
+                Reset Application
+              </button>
+
+              <button className="home-button" onClick={this.handleGoHome}>
+                <FaHome />
+                Go to Home
               </button>
             </div>
+
+            {this.state.retryCount > 0 && (
+              <p className="retry-count">
+                Retry attempt: {this.state.retryCount}/3
+              </p>
+            )}
+
+            {this.renderErrorDetails()}
           </div>
         </div>
       );
@@ -81,15 +159,5 @@ class ErrorBoundary extends React.Component {
     return this.props.children;
   }
 }
-
-ErrorBoundary.propTypes = {
-  children: PropTypes.node.isRequired,
-  showDetails: PropTypes.bool,
-  onError: PropTypes.func,
-};
-
-ErrorBoundary.defaultProps = {
-  showDetails: false,
-};
 
 export default ErrorBoundary;
