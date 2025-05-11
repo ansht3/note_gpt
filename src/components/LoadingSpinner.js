@@ -8,6 +8,8 @@ import {
   FaRegClock,
   FaPause,
   FaPlay,
+  FaCheck,
+  FaExclamationTriangle,
 } from "react-icons/fa";
 import "./LoadingSpinner.css";
 
@@ -26,6 +28,7 @@ function LoadingSpinner({
   customClass = "",
   backgroundColor = "transparent",
   backgroundImage = "",
+  status = null,
 }) {
   const [isPaused, setIsPaused] = useState(false);
 
@@ -113,6 +116,23 @@ function LoadingSpinner({
     setIsPaused(!isPaused);
   };
 
+  const renderStatusMessage = () => {
+    if (status === "success") {
+      return (
+        <div className="status-message success">
+          <FaCheck /> Success!
+        </div>
+      );
+    } else if (status === "error") {
+      return (
+        <div className="status-message error">
+          <FaExclamationTriangle /> Error!
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
     <div
       className={spinnerClasses}
@@ -141,6 +161,7 @@ function LoadingSpinner({
         <button onClick={togglePause} className="pause-button">
           {isPaused ? <FaPlay /> : <FaPause />}
         </button>
+        {renderStatusMessage()}
       </div>
     </div>
   );
@@ -168,6 +189,7 @@ LoadingSpinner.propTypes = {
   customClass: PropTypes.string,
   backgroundColor: PropTypes.string,
   backgroundImage: PropTypes.string,
+  status: PropTypes.oneOf(["success", "error", null]),
 };
 
 export default LoadingSpinner;
