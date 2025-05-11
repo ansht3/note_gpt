@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import {
   FaSpinner,
@@ -6,6 +6,8 @@ import {
   FaSyncAlt,
   FaCompactDisc,
   FaRegClock,
+  FaPause,
+  FaPlay,
 } from "react-icons/fa";
 import "./LoadingSpinner.css";
 
@@ -23,6 +25,8 @@ function LoadingSpinner({
   progress = null,
   customClass = "",
 }) {
+  const [isPaused, setIsPaused] = useState(false);
+
   const spinnerClasses = [
     "spinner-container",
     `spinner-${size}`,
@@ -103,6 +107,10 @@ function LoadingSpinner({
     }
   };
 
+  const togglePause = () => {
+    setIsPaused(!isPaused);
+  };
+
   return (
     <div
       className={spinnerClasses}
@@ -122,6 +130,9 @@ function LoadingSpinner({
             {text}
           </p>
         )}
+        <button onClick={togglePause} className="pause-button">
+          {isPaused ? <FaPlay /> : <FaPause />}
+        </button>
       </div>
     </div>
   );
