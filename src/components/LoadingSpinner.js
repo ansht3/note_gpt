@@ -24,6 +24,8 @@ function LoadingSpinner({
   textPosition = "bottom",
   progress = null,
   customClass = "",
+  backgroundColor = "transparent",
+  backgroundImage = "",
 }) {
   const [isPaused, setIsPaused] = useState(false);
 
@@ -117,6 +119,12 @@ function LoadingSpinner({
       role="status"
       aria-live="polite"
       aria-busy="true"
+      style={{
+        backgroundColor: backgroundColor,
+        backgroundImage: backgroundImage ? `url(${backgroundImage})` : "none",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
     >
       <div className="spinner-content">
         {textPosition === "top" && showText && (
@@ -158,6 +166,8 @@ LoadingSpinner.propTypes = {
   textPosition: PropTypes.oneOf(["top", "bottom"]),
   progress: PropTypes.number,
   customClass: PropTypes.string,
+  backgroundColor: PropTypes.string,
+  backgroundImage: PropTypes.string,
 };
 
 export default LoadingSpinner;
