@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { FaDownload, FaCog } from "react-icons/fa";
 import api from "../services/api";
@@ -14,6 +14,7 @@ function PresentationPage() {
     slidesPerTopic: 2,
     includeImages: false,
   });
+  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const location = useLocation();
 
   const generatePresentation = async () => {
@@ -51,7 +52,10 @@ function PresentationPage() {
 
   const renderSlides = () => {
     return slides.map((slide, index) => (
-      <div key={index} className="slide">
+      <div
+        key={index}
+        className={`slide ${index === currentSlideIndex ? "active" : ""}`}
+      >
         <h2 className="slide-title">{slide.title}</h2>
         <div className="slide-content">
           {slide.content.split("\n").map((line, i) => (
@@ -60,6 +64,18 @@ function PresentationPage() {
         </div>
       </div>
     ));
+  };
+
+  const nextSlide = () => {
+    if (currentSlideIndex < slides.length - 1) {
+      setCurrentSlideIndex(currentSlideIndex + 1);
+    }
+  };
+
+  const previousSlide = () => {
+    if (currentSlideIndex > 0) {
+      setCurrentSlideIndex(currentSlideIndex - 1);
+    }
   };
 
   return (
@@ -92,7 +108,20 @@ function PresentationPage() {
           spinnerType="wave"
         />
       ) : slides.length > 0 ? (
-        <div className="slides-container">{renderSlides()}</div>
+        <div className="slides-container">
+          {renderSlides()}
+          <div className="slide-controls">
+            <button onClick={previousSlide} disabled={currentSlideIndex === 0}>
+              Previous
+            </button>
+            <button
+              onClick={nextSlide}
+              disabled={currentSlideIndex === slides.length - 1}
+            >
+              Next
+            </button>
+          </div>
+        </div>
       ) : (
         <div className="empty-state">
           <p>Click generate to create your presentation</p>
