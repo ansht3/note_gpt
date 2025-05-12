@@ -138,6 +138,8 @@ function Sidebar() {
             } ${item.isBeta ? "beta" : ""}`}
             aria-current={isActive(item.path, item.exact) ? "page" : undefined}
             onClick={() => setIsOpen(false)}
+            onMouseEnter={(e) => e.currentTarget.classList.add("hover")}
+            onMouseLeave={(e) => e.currentTarget.classList.remove("hover")}
           >
             {item.icon}
             {!isCollapsed && <span className="nav-label">{item.label}</span>}
