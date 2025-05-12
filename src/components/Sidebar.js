@@ -37,6 +37,7 @@ function Sidebar() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedLanguage, setSelectedLanguage] = useState("en");
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
+  const [error, setError] = useState(null);
   const location = useLocation();
   const { isDarkMode, toggleTheme } = useTheme();
   const sidebarRef = useRef(null);
@@ -120,9 +121,13 @@ function Sidebar() {
     exact ? location.pathname === path : location.pathname.startsWith(path);
 
   const handleLanguageChange = (langCode) => {
-    setSelectedLanguage(langCode);
-    setShowLanguageMenu(false);
-    // Here you would typically dispatch an action to change the app's language
+    try {
+      setSelectedLanguage(langCode);
+      setShowLanguageMenu(false);
+      // Here you would typically dispatch an action to change the app's language
+    } catch (err) {
+      setError("Failed to change language. Please try again.");
+    }
   };
 
   const renderNavSection = useCallback(
@@ -231,6 +236,8 @@ function Sidebar() {
             </div>
           )}
         </div>
+
+        {error && <div className="error-message">{error}</div>}
       </div>
     </>
   );
