@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import {
   FaSpinner,
@@ -31,6 +31,17 @@ function LoadingSpinner({
   status = null,
 }) {
   const [isPaused, setIsPaused] = useState(false);
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    let interval;
+    if (!isPaused) {
+      interval = setInterval(() => {
+        setProgress((prevProgress) => (prevProgress + 1) % 100);
+      }, 100);
+    }
+    return () => clearInterval(interval);
+  }, [isPaused]);
 
   const spinnerClasses = [
     "spinner-container",
