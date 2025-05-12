@@ -201,61 +201,7 @@ function Sidebar() {
         <nav role="navigation" aria-label="Main navigation">
           {filteredNavItems.map(renderNavSection)}
         </nav>
-
-        <div className="sidebar-footer">
-          <div className="language-selector" ref={languageMenuRef}>
-            <button
-              className="language-button"
-              onClick={() => setShowLanguageMenu(!showLanguageMenu)}
-              aria-expanded={showLanguageMenu}
-            >
-              <FaLanguage />
-              {!isCollapsed && (
-                <span>
-                  {
-                    LANGUAGES.find((lang) => lang.code === selectedLanguage)
-                      ?.name
-                  }
-                </span>
-              )}
-            </button>
-            {showLanguageMenu && (
-              <div className="language-menu">
-                {LANGUAGES.map((lang) => (
-                  <button
-                    key={lang.code}
-                    className={`language-option ${
-                      selectedLanguage === lang.code ? "selected" : ""
-                    }`}
-                    onClick={() => handleLanguageChange(lang.code)}
-                  >
-                    {lang.name}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="footer-actions">
-            <Link to="/settings" className="footer-link">
-              <FaCog />
-              {!isCollapsed && <span>Settings</span>}
-            </Link>
-            <Link to="/profile" className="footer-link">
-              <FaUser />
-              {!isCollapsed && <span>Profile</span>}
-            </Link>
-          </div>
-        </div>
       </div>
-
-      {isOpen && (
-        <div
-          className="sidebar-overlay"
-          onClick={() => setIsOpen(false)}
-          aria-hidden="true"
-        />
-      )}
     </>
   );
 }
