@@ -18,6 +18,13 @@ import {
   FaChevronRight,
   FaStar,
   FaHistory,
+  FaPalette,
+  FaKeyboard,
+  FaBell,
+  FaUserCircle,
+  FaSignOutAlt,
+  FaMoon,
+  FaSun,
 } from "react-icons/fa";
 import { useTheme } from "../contexts/ThemeContext";
 import "./Sidebar.css";
@@ -31,17 +38,45 @@ const LANGUAGES = [
   { code: "zh", name: "中文" },
 ];
 
+// Theme options
+const THEMES = [
+  { id: "default", name: "Default", icon: <FaSun /> },
+  { id: "dark", name: "Dark", icon: <FaMoon /> },
+  { id: "contrast", name: "High Contrast", icon: <FaLightbulb /> },
+];
+
 function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedLanguage, setSelectedLanguage] = useState("en");
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
+  const [showThemeMenu, setShowThemeMenu] = useState(false);
+  const [showShortcutsMenu, setShowShortcutsMenu] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [favorites, setFavorites] = useState([]);
+  const [recentActivity, setRecentActivity] = useState([]);
   const [error, setError] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
   const location = useLocation();
-  const { isDarkMode, toggleTheme } = useTheme();
+  const { isDarkMode, toggleTheme, currentTheme, setTheme } = useTheme();
   const sidebarRef = useRef(null);
   const languageMenuRef = useRef(null);
+  const themeMenuRef = useRef(null);
+  const shortcutsMenuRef = useRef(null);
+  const notificationsRef = useRef(null);
+
+  // Keyboard shortcuts
+  const shortcuts = {
+    "Ctrl + /": "Toggle sidebar",
+    "Ctrl + K": "Focus search",
+    "Ctrl + L": "Toggle language menu",
+    "Ctrl + T": "Toggle theme",
+    "Ctrl + N": "Toggle notifications",
+  };
 
   const navItems = [
     {
@@ -78,6 +113,110 @@ function Sidebar() {
     },
   ];
 
+  // Load user data
+  useEffect(() => {
+    const loadUserData = async () => {
+      try {
+        setIsLoading(true);
+        // Simulate API call
+        const userData = {
+          name: "John Doe",
+          email: "john@example.com",
+          avatar: null,
+          preferences: {
+            theme: currentTheme,
+            language: selectedLanguage,
+          },
+        };
+        setUserProfile(userData);
+      } catch (err) {
+        setError("Failed to load user data");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadUserData();
+  }, [currentTheme, selectedLanguage]);
+
+  // Handle keyboard shortcuts
+  useEffect(() => {
+    const handleKeyPress = (e) => {
+      if (e.ctrlKey) {
+        switch (e.key) {
+          case "/":
+            e.preventDefault();
+            setIsOpen(!isOpen);
+            break;
+          case "k":
+            e.preventDefault();
+            document.querySelector(".search-input")?.focus();
+            break;
+          case "l":
+            e.preventDefault();
+            setShowLanguageMenu(!showLanguageMenu);
+            break;
+          case "t":
+            e.preventDefault();
+            setShowThemeMenu(!showThemeMenu);
+            break;
+          case "n":
+            e.preventDefault();
+            setShowNotifications(!showNotifications);
+            break;
+          default:
+            break;
+        }
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyPress);
+    return () => document.removeEventListener("keydown", handleKeyPress);
+  }, [isOpen, showLanguageMenu, showThemeMenu, showNotifications]);
+
+  // Click outside handlers
+  const handleClickOutside = useCallback(
+    (event) => {
+      const refs = [
+        { ref: sidebarRef, state: isOpen, setter: setIsOpen },
+        {
+          ref: languageMenuRef,
+          state: showLanguageMenu,
+          setter: setShowLanguageMenu,
+        },
+        { ref: themeMenuRef, state: showThemeMenu, setter: setShowThemeMenu },
+        {
+          ref: shortcutsMenuRef,
+          state: showShortcutsMenu,
+          setter: setShowShortcutsMenu,
+        },
+        {
+          ref: notificationsRef,
+          state: showNotifications,
+          setter: setShowNotifications,
+        },
+      ];
+
+      refs.forEach(({ ref, state, setter }) => {
+        if (state && ref.current && !ref.current.contains(event.target)) {
+          setter(false);
+        }
+      });
+    },
+    [
+      isOpen,
+      showLanguageMenu,
+      showThemeMenu,
+      showShortcutsMenu,
+      showNotifications,
+    ]
+  );
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [handleClickOutside]);
+
   // Filter nav items based on search query
   const filteredNavItems = navItems
     .map((section) => ({
@@ -87,35 +226,6 @@ function Sidebar() {
       ),
     }))
     .filter((section) => section.items.length > 0);
-
-  const handleClickOutside = useCallback(
-    (event) => {
-      if (
-        isOpen &&
-        sidebarRef.current &&
-        !sidebarRef.current.contains(event.target)
-      ) {
-        setIsOpen(false);
-      }
-      if (
-        showLanguageMenu &&
-        languageMenuRef.current &&
-        !languageMenuRef.current.contains(event.target)
-      ) {
-        setShowLanguageMenu(false);
-      }
-    },
-    [isOpen, showLanguageMenu]
-  );
-
-  useEffect(() => {
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [handleClickOutside]);
-
-  useEffect(() => {
-    setIsOpen(false);
-  }, [location.pathname]);
 
   const isActive = (path, exact = false) =>
     exact ? location.pathname === path : location.pathname.startsWith(path);
@@ -128,6 +238,20 @@ function Sidebar() {
     } catch (err) {
       setError("Failed to change language. Please try again.");
     }
+  };
+
+  const handleThemeChange = (themeId) => {
+    try {
+      setTheme(themeId);
+      setShowThemeMenu(false);
+    } catch (err) {
+      setError("Failed to change theme. Please try again.");
+    }
+  };
+
+  const handleLogout = () => {
+    // Implement logout logic
+    console.log("Logging out...");
   };
 
   const renderNavSection = useCallback(
@@ -207,35 +331,134 @@ function Sidebar() {
           {filteredNavItems.map(renderNavSection)}
         </nav>
 
-        <div className="language-switcher">
-          <button
-            className="language-button"
-            onClick={() => setShowLanguageMenu(!showLanguageMenu)}
-            aria-expanded={showLanguageMenu}
-          >
-            <FaLanguage />
-            {!isCollapsed && (
-              <span>
-                {LANGUAGES.find((lang) => lang.code === selectedLanguage)?.name}
-              </span>
+        <div className="sidebar-footer">
+          <div className="user-profile">
+            {userProfile ? (
+              <div className="profile-info">
+                {userProfile.avatar ? (
+                  <img
+                    src={userProfile.avatar}
+                    alt={userProfile.name}
+                    className="avatar"
+                  />
+                ) : (
+                  <FaUserCircle className="avatar-placeholder" />
+                )}
+                {!isCollapsed && (
+                  <div className="user-details">
+                    <span className="user-name">{userProfile.name}</span>
+                    <span className="user-email">{userProfile.email}</span>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="loading-profile">Loading...</div>
             )}
-          </button>
-          {showLanguageMenu && (
-            <div className="language-menu">
-              {LANGUAGES.map((lang) => (
-                <button
-                  key={lang.code}
-                  className={`language-option ${
-                    selectedLanguage === lang.code ? "selected" : ""
-                  }`}
-                  onClick={() => handleLanguageChange(lang.code)}
-                >
-                  {lang.name}
-                </button>
-              ))}
-            </div>
-          )}
+          </div>
+
+          <div className="action-buttons">
+            <button
+              className="action-button"
+              onClick={() => setShowNotifications(!showNotifications)}
+              aria-label="Notifications"
+            >
+              <FaBell />
+              {notifications.length > 0 && (
+                <span className="notification-badge">
+                  {notifications.length}
+                </span>
+              )}
+            </button>
+
+            <button
+              className="action-button"
+              onClick={() => setShowThemeMenu(!showThemeMenu)}
+              aria-label="Change theme"
+            >
+              <FaPalette />
+            </button>
+
+            <button
+              className="action-button"
+              onClick={() => setShowShortcutsMenu(!showShortcutsMenu)}
+              aria-label="Keyboard shortcuts"
+            >
+              <FaKeyboard />
+            </button>
+
+            <button
+              className="action-button"
+              onClick={handleLogout}
+              aria-label="Logout"
+            >
+              <FaSignOutAlt />
+            </button>
+          </div>
         </div>
+
+        {/* Language Menu */}
+        {showLanguageMenu && (
+          <div ref={languageMenuRef} className="language-menu">
+            {LANGUAGES.map((lang) => (
+              <button
+                key={lang.code}
+                className={`language-option ${
+                  selectedLanguage === lang.code ? "selected" : ""
+                }`}
+                onClick={() => handleLanguageChange(lang.code)}
+              >
+                {lang.name}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Theme Menu */}
+        {showThemeMenu && (
+          <div ref={themeMenuRef} className="theme-menu">
+            {THEMES.map((theme) => (
+              <button
+                key={theme.id}
+                className={`theme-option ${
+                  currentTheme === theme.id ? "selected" : ""
+                }`}
+                onClick={() => handleThemeChange(theme.id)}
+              >
+                {theme.icon}
+                <span>{theme.name}</span>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Shortcuts Menu */}
+        {showShortcutsMenu && (
+          <div ref={shortcutsMenuRef} className="shortcuts-menu">
+            <h3>Keyboard Shortcuts</h3>
+            {Object.entries(shortcuts).map(([key, description]) => (
+              <div key={key} className="shortcut-item">
+                <kbd>{key}</kbd>
+                <span>{description}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Notifications Panel */}
+        {showNotifications && (
+          <div ref={notificationsRef} className="notifications-panel">
+            <h3>Notifications</h3>
+            {notifications.length > 0 ? (
+              notifications.map((notification, index) => (
+                <div key={index} className="notification-item">
+                  {notification.content}
+                </div>
+              ))
+            ) : (
+              <div className="no-notifications">No new notifications</div>
+            )}
+          </div>
+        )}
 
         {error && <div className="error-message">{error}</div>}
       </div>
