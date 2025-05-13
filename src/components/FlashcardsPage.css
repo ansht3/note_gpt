@@ -1,4 +1,5 @@
-.flashcards-page {
+/* Main Container */
+.flashcards-container {
   padding: var(--space-lg);
   max-width: 1200px;
   margin: 0 auto;
@@ -8,6 +9,7 @@
   border: 2px solid var(--border-color);
 }
 
+/* Header Section */
 .flashcards-header {
   display: flex;
   justify-content: space-between;
@@ -19,7 +21,8 @@
   background-color: var(--background-light);
 }
 
-.back-button {
+/* Navigation Button */
+.nav-back-button {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
@@ -33,17 +36,19 @@
   box-shadow: var(--shadow-md);
 }
 
-.back-button:hover {
+.nav-back-button:hover {
   background-color: var(--primary-light);
   color: var(--text-inverse);
 }
 
-.flashcards-actions {
+/* Action Buttons Container */
+.action-buttons-container {
   display: flex;
   gap: var(--space-md);
   flex-wrap: wrap;
 }
 
+/* Generic Action Button */
 .action-button {
   padding: var(--space-md) var(--space-lg);
   border-radius: var(--radius-lg);
@@ -58,12 +63,14 @@
   box-shadow: var(--shadow-md);
 }
 
-.action-button.settings {
+/* Settings Button Variant */
+.action-button--settings {
   background-color: var(--primary-color);
   color: var(--text-inverse);
   border-radius: var(--radius-lg);
 }
 
+/* Flashcard Component */
 .flashcard {
   max-width: 500px;
   height: 350px;
@@ -77,24 +84,27 @@
   box-shadow: var(--shadow-lg);
 }
 
-.flashcard-inner {
+/* Flashcard Inner Container */
+.flashcard__inner {
   transition: transform 0.6s, box-shadow 0.3s;
   box-shadow: var(--shadow-md);
 }
 
-.flashcard-front,
-.flashcard-back {
+/* Flashcard Sides */
+.flashcard__front,
+.flashcard__back {
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   border: 2px solid var(--border-color);
   transition: background-color 0.3s;
 }
 
-.flashcard-back {
+.flashcard__back {
   background-color: var(--primary-dark);
 }
 
-.generate-button {
+/* Generate Button */
+.generate-flashcards-button {
   font-size: var(--font-size-md);
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -102,26 +112,113 @@
   box-shadow: var(--shadow-md);
 }
 
-.generate-button:hover {
+.generate-flashcards-button:hover {
   background-color: var(--primary-dark);
   transform: translateY(-3px);
   box-shadow: var(--shadow-lg);
 }
 
-/* Responsive Design Enhancements */
+/* Flashcard Controls */
+.flashcard-controls {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-md);
+  margin-top: var(--space-lg);
+}
+
+.flashcard-control-button {
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  background-color: var(--background-light);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  transition: all var(--transition-fast);
+}
+
+.flashcard-control-button:hover {
+  background-color: var(--primary-light);
+  color: var(--text-inverse);
+}
+
+/* Progress Indicator */
+.flashcard-progress {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+}
+
+.progress-bar {
+  flex-grow: 1;
+  height: 4px;
+  background-color: var(--background-light);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.progress-bar__fill {
+  height: 100%;
+  background-color: var(--primary-color);
+  transition: width 0.3s ease;
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
-  .flashcards-page {
+  .flashcards-container {
     padding: var(--space-md);
   }
+
   .flashcards-header {
     flex-direction: column;
     align-items: flex-start;
   }
+
   .flashcard {
     height: 280px;
   }
+
   .action-button {
     font-size: var(--font-size-sm);
     padding: var(--space-sm) var(--space-md);
   }
+
+  .action-buttons-container {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+/* Animation Classes */
+.flashcard--flipped .flashcard__inner {
+  transform: rotateY(180deg);
+}
+
+.flashcard--correct {
+  border-color: var(--success-color);
+}
+
+.flashcard--incorrect {
+  border-color: var(--error-color);
+}
+
+/* Loading State */
+.flashcard--loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* Empty State */
+.flashcards-empty-state {
+  text-align: center;
+  padding: var(--space-xl);
+  color: var(--text-secondary);
+}
+
+/* Error State */
+.flashcards-error {
+  color: var(--error-color);
+  padding: var(--space-md);
+  border: 1px solid var(--error-color);
+  border-radius: var(--radius-md);
+  margin: var(--space-md) 0;
 }
