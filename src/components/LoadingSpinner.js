@@ -29,19 +29,21 @@ function LoadingSpinner({
   backgroundColor = "transparent",
   backgroundImage = "",
   status = null,
+  onPause,
+  onResume,
 }) {
   const [isPaused, setIsPaused] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const [localProgress, setLocalProgress] = useState(0);
 
   useEffect(() => {
     let interval;
-    if (!isPaused) {
+    if (!isPaused && progress === null) {
       interval = setInterval(() => {
-        setProgress((prevProgress) => (prevProgress + 1) % 100);
+        setLocalProgress((prevProgress) => (prevProgress + 1) % 100);
       }, 100);
     }
     return () => clearInterval(interval);
-  }, [isPaused]);
+  }, [isPaused, progress]);
 
   const spinnerClasses = [
     "spinner-container",
@@ -56,6 +58,16 @@ function LoadingSpinner({
   ]
     .filter(Boolean)
     .join(" ");
+
+  const togglePause = () => {
+    const newPausedState = !isPaused;
+    setIsPaused(newPausedState);
+    if (newPausedState && onPause) {
+      onPause();
+    } else if (!newPausedState && onResume) {
+      onResume();
+    }
+  };
 
   const renderIcon = () => {
     switch (icon) {
@@ -107,24 +119,20 @@ function LoadingSpinner({
       case "progress":
         return (
           <div className="progress-spinner">
-            <div
-              className="progress-bar"
-              style={{ width: `${progress || 0}%` }}
-            />
-            {progress !== null && (
-              <span className="progress-text">{`${Math.round(
-                progress
-              )}%`}</span>
-            )}
+            <div className="progress-container">
+              <div
+                className="progress-bar"
+                style={{ width: `${progress || localProgress}%` }}
+              />
+              <div className="progress-text">
+                {`${Math.round(progress || localProgress)}%`}
+              </div>
+            </div>
           </div>
         );
       default:
         return <div className="circular-spinner">{renderIcon()}</div>;
     }
-  };
-
-  const togglePause = () => {
-    setIsPaused(!isPaused);
   };
 
   const renderStatusMessage = () => {
@@ -169,8 +177,13 @@ function LoadingSpinner({
             {text}
           </p>
         )}
-        <button onClick={togglePause} className="pause-button">
+        <button
+          onClick={togglePause}
+          className="pause-button"
+          aria-label={isPaused ? "Resume loading" : "Pause loading"}
+        >
           {isPaused ? <FaPlay /> : <FaPause />}
+          {isPaused ? "Resume" : "Pause"}
         </button>
         {renderStatusMessage()}
       </div>
@@ -201,6 +214,8 @@ LoadingSpinner.propTypes = {
   backgroundColor: PropTypes.string,
   backgroundImage: PropTypes.string,
   status: PropTypes.oneOf(["success", "error", null]),
+  onPause: PropTypes.func,
+  onResume: PropTypes.func,
 };
 
 export default LoadingSpinner;
