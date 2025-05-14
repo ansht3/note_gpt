@@ -15,8 +15,6 @@ class YouTubeService {
       },
     });
 
-    const tempVal = "";
-
     this.apiKey = process.env.YOUTUBE_API_KEY;
     this.cache = new Map();
     this.rateLimiter = {
