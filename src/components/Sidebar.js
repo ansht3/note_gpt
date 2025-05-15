@@ -25,6 +25,7 @@ import {
   FaSignOutAlt,
   FaMoon,
   FaSun,
+  FaCheck,
 } from "react-icons/fa";
 import { useTheme } from "../contexts/ThemeContext";
 import "./Sidebar.css";
@@ -60,6 +61,7 @@ function Sidebar() {
   const [error, setError] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
 
   const location = useLocation();
   const { isDarkMode, toggleTheme, currentTheme, setTheme } = useTheme();
@@ -254,6 +256,20 @@ function Sidebar() {
     console.log("Logging out...");
   };
 
+  // New: handle clear search
+  const handleClearSearch = () => setSearchQuery("");
+
+  // New: handle user menu
+  const handleUserMenu = () => setShowUserMenu((v) => !v);
+
+  // New: mark all notifications as read
+  const handleMarkAllRead = () => setNotifications([]);
+
+  // New: theme preview
+  const renderThemePreview = (themeId) => (
+    <span className={`theme-preview theme-preview--${themeId}`}></span>
+  );
+
   const renderNavSection = useCallback(
     (section) => (
       <div key={section.section} className="nav-section">
@@ -298,11 +314,16 @@ function Sidebar() {
         className={`sidebar ${isOpen ? "open" : ""} ${
           isCollapsed ? "collapsed" : ""
         }`}
+        role="navigation"
+        aria-label="Sidebar navigation"
       >
         <div className="sidebar-header">
           <div className="logo">
-            <Link to="/" onClick={() => setIsOpen(false)}>
-              {!isCollapsed && "NoteGPT"}
+            <Link to="/" onClick={() => setIsOpen(false)} aria-label="Home">
+              <span className="logo-icon">
+                <FaLightbulb />
+              </span>
+              {!isCollapsed && <span className="logo-text">NoteGPT</span>}
             </Link>
           </div>
           <button
@@ -315,7 +336,7 @@ function Sidebar() {
         </div>
 
         {!isCollapsed && (
-          <div className="search-container">
+          <div className={`search-container${searchQuery ? " has-value" : ""}`}>
             <FaSearch className="search-icon" />
             <input
               type="text"
@@ -323,31 +344,74 @@ function Sidebar() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="search-input"
+              aria-label="Search navigation"
             />
+            {searchQuery && (
+              <button
+                className="clear-search"
+                onClick={handleClearSearch}
+                aria-label="Clear search"
+              >
+                <FaTimes />
+              </button>
+            )}
           </div>
         )}
 
         <nav role="navigation" aria-label="Main navigation">
-          {filteredNavItems.map(renderNavSection)}
+          {filteredNavItems.map((section, idx) => (
+            <React.Fragment key={section.section}>
+              {idx > 0 && <div className="nav-divider" role="separator" />}
+              {renderNavSection(section)}
+            </React.Fragment>
+          ))}
         </nav>
 
         <div className="sidebar-footer">
           <div className="user-profile">
             {userProfile ? (
               <div className="profile-info">
-                {userProfile.avatar ? (
-                  <img
-                    src={userProfile.avatar}
-                    alt={userProfile.name}
-                    className="avatar"
+                <button
+                  className="avatar-btn"
+                  onClick={handleUserMenu}
+                  aria-label="User menu"
+                  aria-haspopup="true"
+                  aria-expanded={showUserMenu}
+                >
+                  {userProfile.avatar ? (
+                    <img
+                      src={userProfile.avatar}
+                      alt={userProfile.name}
+                      className="avatar"
+                    />
+                  ) : (
+                    <FaUserCircle className="avatar-placeholder" />
+                  )}
+                  <span
+                    className={`status-indicator status-online`}
+                    title="Online"
                   />
-                ) : (
-                  <FaUserCircle className="avatar-placeholder" />
-                )}
+                </button>
                 {!isCollapsed && (
                   <div className="user-details">
                     <span className="user-name">{userProfile.name}</span>
                     <span className="user-email">{userProfile.email}</span>
+                  </div>
+                )}
+                {showUserMenu && (
+                  <div className="user-menu" role="menu">
+                    <button className="user-menu-item" onClick={() => {}}>
+                      <FaUser /> Profile
+                    </button>
+                    <button
+                      className="user-menu-item"
+                      onClick={() => setShowSettings(true)}
+                    >
+                      <FaCog /> Settings
+                    </button>
+                    <button className="user-menu-item" onClick={handleLogout}>
+                      <FaSignOutAlt /> Logout
+                    </button>
                   </div>
                 )}
               </div>
@@ -385,20 +449,12 @@ function Sidebar() {
             >
               <FaKeyboard />
             </button>
-
-            <button
-              className="action-button"
-              onClick={handleLogout}
-              aria-label="Logout"
-            >
-              <FaSignOutAlt />
-            </button>
           </div>
         </div>
 
         {/* Language Menu */}
         {showLanguageMenu && (
-          <div ref={languageMenuRef} className="language-menu">
+          <div ref={languageMenuRef} className="language-menu animated-menu">
             {LANGUAGES.map((lang) => (
               <button
                 key={lang.code}
@@ -415,7 +471,7 @@ function Sidebar() {
 
         {/* Theme Menu */}
         {showThemeMenu && (
-          <div ref={themeMenuRef} className="theme-menu">
+          <div ref={themeMenuRef} className="theme-menu animated-menu">
             {THEMES.map((theme) => (
               <button
                 key={theme.id}
@@ -424,6 +480,7 @@ function Sidebar() {
                 }`}
                 onClick={() => handleThemeChange(theme.id)}
               >
+                {renderThemePreview(theme.id)}
                 {theme.icon}
                 <span>{theme.name}</span>
               </button>
@@ -433,7 +490,7 @@ function Sidebar() {
 
         {/* Shortcuts Menu */}
         {showShortcutsMenu && (
-          <div ref={shortcutsMenuRef} className="shortcuts-menu">
+          <div ref={shortcutsMenuRef} className="shortcuts-menu animated-menu">
             <h3>Keyboard Shortcuts</h3>
             {Object.entries(shortcuts).map(([key, description]) => (
               <div key={key} className="shortcut-item">
@@ -446,12 +503,30 @@ function Sidebar() {
 
         {/* Notifications Panel */}
         {showNotifications && (
-          <div ref={notificationsRef} className="notifications-panel">
-            <h3>Notifications</h3>
+          <div
+            ref={notificationsRef}
+            className="notifications-panel animated-menu"
+          >
+            <div className="notifications-header">
+              <h3>Notifications</h3>
+              {notifications.length > 0 && (
+                <button
+                  className="mark-all-read"
+                  onClick={handleMarkAllRead}
+                  aria-label="Mark all as read"
+                >
+                  <FaCheck /> Mark all as read
+                </button>
+              )}
+            </div>
             {notifications.length > 0 ? (
               notifications.map((notification, index) => (
                 <div key={index} className="notification-item">
-                  {notification.content}
+                  <FaBell className="notification-icon" />
+                  <span>{notification.content}</span>
+                  <span className="notification-time">
+                    {notification.time || "now"}
+                  </span>
                 </div>
               ))
             ) : (
