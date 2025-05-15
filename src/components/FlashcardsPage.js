@@ -299,17 +299,22 @@ function FlashcardsPage() {
   }
 
   return (
-    <div className="flashcards-container">
+    <div
+      className="flashcards-container"
+      role="main"
+      aria-label="Flashcards Study Area"
+    >
       <div className="flashcards-header">
         <div className="header-left">
           <button
             className="nav-back-button"
             onClick={() => history.goBack()}
             title="Go back"
+            aria-label="Go back"
           >
             <FaArrowLeft /> Back
           </button>
-          <h1>Flashcards</h1>
+          <h1 tabIndex={0}>Flashcards</h1>
         </div>
 
         <div className="action-buttons-container">
@@ -317,34 +322,39 @@ function FlashcardsPage() {
             className="action-button"
             onClick={handleShuffle}
             title="Shuffle cards"
+            aria-label="Shuffle cards"
           >
-            <FaRandom /> Shuffle
+            <FaRandom /> <span className="hide-mobile">Shuffle</span>
           </button>
           <button
             className="action-button"
             onClick={handleDownload}
             title="Download flashcards"
+            aria-label="Download flashcards"
           >
-            <FaDownload /> Download
+            <FaDownload /> <span className="hide-mobile">Download</span>
           </button>
           <button
             className="action-button"
             onClick={handlePrint}
             title="Print flashcards"
+            aria-label="Print flashcards"
           >
-            <FaPrint /> Print
+            <FaPrint /> <span className="hide-mobile">Print</span>
           </button>
           <button
             className="action-button"
             onClick={handleShare}
             title="Share flashcards"
+            aria-label="Share flashcards"
           >
-            <FaShare /> Share
+            <FaShare /> <span className="hide-mobile">Share</span>
           </button>
           <button
             className="action-button"
             onClick={() => setIsMuted(!isMuted)}
             title={isMuted ? "Unmute" : "Mute"}
+            aria-label={isMuted ? "Unmute" : "Mute"}
           >
             {isMuted ? <FaVolumeMute /> : <FaVolumeUp />}
           </button>
@@ -352,8 +362,9 @@ function FlashcardsPage() {
             className="action-button--settings"
             onClick={() => setShowSettings(!showSettings)}
             title="Settings"
+            aria-label="Settings"
           >
-            <FaCog /> Settings
+            <FaCog /> <span className="hide-mobile">Settings</span>
           </button>
         </div>
       </div>
@@ -361,12 +372,14 @@ function FlashcardsPage() {
       {error && (
         <div className="flashcards-error" role="alert">
           <FaTimes /> {error}
-          <button onClick={() => setError(null)}>Dismiss</button>
+          <button onClick={() => setError(null)} aria-label="Dismiss error">
+            Dismiss
+          </button>
         </div>
       )}
 
       {success && (
-        <div className="success-message" role="alert">
+        <div className="success-message" role="status">
           <FaCheck /> {success}
         </div>
       )}
@@ -378,8 +391,8 @@ function FlashcardsPage() {
         </div>
       ) : (
         <>
-          <div className="flashcard-progress">
-            <div className="progress-bar">
+          <div className="flashcard-progress" aria-label="Progress">
+            <div className="progress-bar" aria-hidden="true">
               <div
                 className="progress-bar__fill"
                 style={{
@@ -392,17 +405,36 @@ function FlashcardsPage() {
             </span>
           </div>
 
+          {/* Statistics Panel */}
+          <div className="flashcard-stats" aria-label="Statistics">
+            <span>Total: {stats.totalCards}</span>
+            <span>
+              Reviewed: {stats.cardsReviewed || studySession.cardsReviewed.size}
+            </span>
+            <span>Time: {Math.round(stats.timeSpent)}s</span>
+          </div>
+
+          {/* Card Flip Animation Structure */}
           <div
             className={`flashcard ${isFlipped ? "flashcard--flipped" : ""} ${
               settings.cardStyle === "dark" ? "flashcard--dark" : ""
             }`}
+            tabIndex={0}
+            aria-label={
+              isFlipped ? "Flashcard answer side" : "Flashcard question side"
+            }
             onClick={handleFlip}
+            onKeyDown={(e) =>
+              (e.key === "Enter" || e.key === " ") && handleFlip()
+            }
           >
             <div className="flashcard__inner">
-              <div className="flashcard__front">
+              <div className="flashcard__front" aria-hidden={isFlipped}>
                 <h2>{flashcards[currentIndex].front}</h2>
                 <button
-                  className="bookmark-button"
+                  className={`bookmark-button${
+                    bookmarkedCards.has(currentIndex) ? " bookmarked" : ""
+                  }`}
                   onClick={(e) => {
                     e.stopPropagation();
                     handleBookmark(currentIndex);
@@ -412,15 +444,16 @@ function FlashcardsPage() {
                       ? "Remove bookmark"
                       : "Bookmark"
                   }
+                  aria-label={
+                    bookmarkedCards.has(currentIndex)
+                      ? "Remove bookmark"
+                      : "Bookmark"
+                  }
                 >
-                  <FaStar
-                    className={
-                      bookmarkedCards.has(currentIndex) ? "bookmarked" : ""
-                    }
-                  />
+                  <FaStar />
                 </button>
               </div>
-              <div className="flashcard__back">
+              <div className="flashcard__back" aria-hidden={!isFlipped}>
                 <h2>{flashcards[currentIndex].back}</h2>
                 {flashcards[currentIndex].explanation && (
                   <p className="explanation">
@@ -436,16 +469,22 @@ function FlashcardsPage() {
               className="flashcard-control-button"
               onClick={handlePrevious}
               disabled={currentIndex === 0}
+              aria-label="Previous card"
             >
               <FaArrowLeft /> Previous
             </button>
-            <button className="flashcard-control-button" onClick={handleFlip}>
+            <button
+              className="flashcard-control-button"
+              onClick={handleFlip}
+              aria-label={isFlipped ? "Show question" : "Show answer"}
+            >
               {isFlipped ? "Show Question" : "Show Answer"}
             </button>
             <button
               className="flashcard-control-button"
               onClick={handleNext}
               disabled={currentIndex === flashcards.length - 1}
+              aria-label="Next card"
             >
               Next <FaArrowRight />
             </button>
@@ -454,7 +493,12 @@ function FlashcardsPage() {
       )}
 
       {showSettings && (
-        <div className="settings-modal">
+        <div
+          className="settings-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Flashcard Settings"
+        >
           <div className="settings-content">
             <h2>Flashcard Settings</h2>
             <div className="settings-group">
@@ -467,6 +511,7 @@ function FlashcardsPage() {
                     cardStyle: e.target.value,
                   })
                 }
+                aria-label="Card style"
               >
                 <option value="basic">Basic</option>
                 <option value="dark">Dark</option>
@@ -485,6 +530,7 @@ function FlashcardsPage() {
                       autoFlip: e.target.checked,
                     })
                   }
+                  aria-label="Auto-flip cards"
                 />
                 Auto-flip cards
               </label>
@@ -500,6 +546,7 @@ function FlashcardsPage() {
                       flipDuration: parseInt(e.target.value),
                     })
                   }
+                  aria-label="Flip duration in seconds"
                 />
                 Flip duration (seconds)
               </label>
@@ -516,6 +563,7 @@ function FlashcardsPage() {
                       darkMode: e.target.checked,
                     })
                   }
+                  aria-label="Dark mode"
                 />
                 Dark mode
               </label>
@@ -528,6 +576,7 @@ function FlashcardsPage() {
                       fontSize: e.target.value,
                     })
                   }
+                  aria-label="Font size"
                 >
                   <option value="small">Small</option>
                   <option value="medium">Medium</option>
@@ -537,8 +586,15 @@ function FlashcardsPage() {
               </label>
             </div>
             <div className="settings-actions">
-              <button onClick={() => setShowSettings(false)}>Close</button>
-              <button onClick={generateFlashcards}>Apply Changes</button>
+              <button
+                onClick={() => setShowSettings(false)}
+                aria-label="Close settings"
+              >
+                Close
+              </button>
+              <button onClick={generateFlashcards} aria-label="Apply changes">
+                Apply Changes
+              </button>
             </div>
           </div>
         </div>
