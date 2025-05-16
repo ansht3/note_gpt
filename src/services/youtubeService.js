@@ -152,10 +152,6 @@ class YouTubeService {
         (item) => item.snippet.language === languageCode
       );
 
-      const second_capation = response.data.items.find(
-        (item) => item.snippet.language === languageCode
-      );
-
       if (!caption) {
         throw new ApiError(`No captions available in ${languageCode}`, 404);
       }
