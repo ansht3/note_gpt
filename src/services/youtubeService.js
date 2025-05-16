@@ -144,9 +144,9 @@ class YouTubeService {
         },
       });
 
-      if (!response.data.items || response.data.items.length === 0) {
-        throw new ApiError("No captions found for this video", 404);
-      }
+      // if (!response.data.items || response.data.items.length === 0) {
+      //   throw new ApiError("No captions found for this video", 404);
+      // }
 
       const caption = response.data.items.find(
         (item) => item.snippet.language === languageCode
