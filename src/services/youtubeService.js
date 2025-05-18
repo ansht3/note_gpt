@@ -152,9 +152,9 @@ class YouTubeService {
         (item) => item.snippet.language === languageCode
       );
 
-      // if (!caption) {
-      //   throw new ApiError(`No captions available in ${languageCode}`, 404);
-      // }
+      if (!caption) {
+        throw new ApiError(`No captions available in ${languageCode}`, 404);
+      }
 
       const transcriptResponse = await this.apiClient.get(
         `/captions/${caption.id}`,
