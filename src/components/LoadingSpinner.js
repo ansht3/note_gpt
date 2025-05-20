@@ -1,221 +1,221 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import {
   FaSpinner,
   FaCircleNotch,
-  FaSyncAlt,
-  FaCompactDisc,
-  FaRegClock,
+  FaCog,
+  FaSync,
   FaPause,
   FaPlay,
   FaCheck,
+  FaTimes,
   FaExclamationTriangle,
+  FaInfoCircle,
 } from "react-icons/fa";
 import "./LoadingSpinner.css";
 
+const SPINNER_TYPES = {
+  default: FaSpinner,
+  circle: FaCircleNotch,
+  cog: FaCog,
+  sync: FaSync,
+};
+
+const STATUS_TYPES = {
+  loading: "loading",
+  success: "success",
+  error: "error",
+  paused: "paused",
+  info: "info",
+};
+
 function LoadingSpinner({
   size = "medium",
-  color = "primary",
   text = "Loading...",
-  fullScreen = false,
-  overlay = false,
-  showText = true,
-  spinnerType = "circular",
-  icon = "default",
-  speed = "normal",
-  textPosition = "bottom",
-  progress = null,
-  customClass = "",
-  backgroundColor = "transparent",
-  backgroundImage = "",
-  status = null,
+  spinnerType = "default",
   onPause,
   onResume,
+  status = "loading",
+  progress,
+  showProgress = true,
+  showControls = true,
+  showStatus = true,
+  className = "",
+  ariaLabel = "Loading indicator",
 }) {
-  const [isPaused, setIsPaused] = useState(false);
   const [localProgress, setLocalProgress] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
 
+  // Handle progress updates
   useEffect(() => {
-    let interval;
-    if (!isPaused && progress === null) {
-      interval = setInterval(() => {
-        setLocalProgress((prevProgress) => (prevProgress + 1) % 100);
+    if (progress !== undefined) {
+      setLocalProgress(progress);
+    } else if (status === "loading" && !isPaused) {
+      const interval = setInterval(() => {
+        setLocalProgress((prev) => {
+          if (prev >= 100) return 0;
+          return prev + 1;
+        });
       }, 100);
+
+      return () => clearInterval(interval);
     }
-    return () => clearInterval(interval);
-  }, [isPaused, progress]);
+  }, [progress, status, isPaused]);
 
-  const spinnerClasses = [
-    "spinner-container",
-    `spinner-${size}`,
-    `spinner-${color}`,
-    `spinner-speed-${speed}`,
-    `text-${textPosition}`,
-    fullScreen && "spinner-fullscreen",
-    overlay && "spinner-overlay",
-    `spinner-type-${spinnerType}`,
-    customClass,
-  ]
-    .filter(Boolean)
-    .join(" ");
+  // Handle pause/resume
+  const togglePause = useCallback(() => {
+    setIsPaused((prev) => {
+      const newState = !prev;
+      if (newState) {
+        onPause?.();
+      } else {
+        onResume?.();
+      }
+      return newState;
+    });
+  }, [onPause, onResume]);
 
-  const togglePause = () => {
-    const newPausedState = !isPaused;
-    setIsPaused(newPausedState);
-    if (newPausedState && onPause) {
-      onPause();
-    } else if (!newPausedState && onResume) {
-      onResume();
-    }
-  };
+  // Get spinner icon based on type
+  const SpinnerIcon = SPINNER_TYPES[spinnerType] || SPINNER_TYPES.default;
 
-  const renderIcon = () => {
-    switch (icon) {
-      case "notch":
-        return <FaCircleNotch className="spinner-icon" />;
-      case "sync":
-        return <FaSyncAlt className="spinner-icon" />;
-      case "disc":
-        return <FaCompactDisc className="spinner-icon" />;
-      case "clock":
-        return <FaRegClock className="spinner-icon" />;
+  // Get status icon and color
+  const getStatusInfo = () => {
+    switch (status) {
+      case "success":
+        return {
+          icon: <FaCheck />,
+          color: "var(--success-color)",
+          message: "Completed successfully",
+        };
+      case "error":
+        return {
+          icon: <FaTimes />,
+          color: "var(--error-color)",
+          message: "An error occurred",
+        };
+      case "paused":
+        return {
+          icon: <FaPause />,
+          color: "var(--warning-color)",
+          message: "Paused",
+        };
+      case "info":
+        return {
+          icon: <FaInfoCircle />,
+          color: "var(--info-color)",
+          message: text,
+        };
       default:
-        return <FaSpinner className="spinner-icon" />;
+        return {
+          icon: <SpinnerIcon />,
+          color: "var(--primary-color)",
+          message: text,
+        };
     }
   };
 
-  const renderSpinner = () => {
-    switch (spinnerType) {
-      case "dots":
-        return (
-          <div className="dots-spinner">
-            <div className="dot"></div>
-            <div className="dot"></div>
-            <div className="dot"></div>
-          </div>
-        );
-      case "pulse":
-        return (
-          <div className="pulse-spinner">
-            <div className="pulse-ring"></div>
-          </div>
-        );
-      case "wave":
-        return (
-          <div className="wave-spinner">
-            {[...Array(5)].map((_, index) => (
-              <div key={index} className="wave-bar"></div>
-            ))}
-          </div>
-        );
-      case "bounce":
-        return (
-          <div className="bounce-spinner">
-            <div className="bounce-dot"></div>
-            <div className="bounce-dot"></div>
-            <div className="bounce-dot"></div>
-          </div>
-        );
-      case "progress":
-        return (
-          <div className="progress-spinner">
-            <div className="progress-container">
-              <div
-                className="progress-bar"
-                style={{ width: `${progress || localProgress}%` }}
-              />
-              <div className="progress-text">
-                {`${Math.round(progress || localProgress)}%`}
-              </div>
-            </div>
-          </div>
-        );
-      default:
-        return <div className="circular-spinner">{renderIcon()}</div>;
-    }
-  };
-
-  const renderStatusMessage = () => {
-    if (status === "success") {
-      return (
-        <div className="status-message success">
-          <FaCheck /> Success!
-        </div>
-      );
-    } else if (status === "error") {
-      return (
-        <div className="status-message error">
-          <FaExclamationTriangle /> Error!
-        </div>
-      );
-    }
-    return null;
-  };
+  const statusInfo = getStatusInfo();
 
   return (
     <div
-      className={spinnerClasses}
+      className={`loading-spinner ${size} ${status} ${className}`}
       role="status"
+      aria-label={ariaLabel}
       aria-live="polite"
-      aria-busy="true"
-      style={{
-        backgroundColor: backgroundColor,
-        backgroundImage: backgroundImage ? `url(${backgroundImage})` : "none",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
     >
-      <div className="spinner-content">
-        {textPosition === "top" && showText && (
-          <p className="spinner-text" aria-label={text}>
-            {text}
-          </p>
-        )}
-        {renderSpinner()}
-        {textPosition === "bottom" && showText && (
-          <p className="spinner-text" aria-label={text}>
-            {text}
-          </p>
-        )}
-        <button
-          onClick={togglePause}
-          className="pause-button"
-          aria-label={isPaused ? "Resume loading" : "Pause loading"}
+      <div className="spinner-container">
+        <div
+          className={`spinner-icon ${isPaused ? "paused" : ""}`}
+          style={{ color: statusInfo.color }}
         >
-          {isPaused ? <FaPlay /> : <FaPause />}
-          {isPaused ? "Resume" : "Pause"}
-        </button>
-        {renderStatusMessage()}
+          {statusInfo.icon}
+        </div>
+
+        {showStatus && (
+          <div className="spinner-status">
+            <span className="status-text">{statusInfo.message}</span>
+            {showDetails && (
+              <div className="status-details">
+                <p>Progress: {Math.round(localProgress)}%</p>
+                <p>Status: {status}</p>
+                {status === "error" && (
+                  <p className="error-message">
+                    <FaExclamationTriangle /> Please try again
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {showProgress && (
+          <div className="progress-container">
+            <div className="progress-bar">
+              <div
+                className="progress-fill"
+                style={{
+                  width: `${localProgress}%`,
+                  backgroundColor: statusInfo.color,
+                }}
+              />
+            </div>
+            <span className="progress-text">{Math.round(localProgress)}%</span>
+          </div>
+        )}
+
+        {showControls && status === "loading" && (
+          <div className="spinner-controls">
+            <button
+              className="control-button"
+              onClick={togglePause}
+              aria-label={isPaused ? "Resume" : "Pause"}
+            >
+              {isPaused ? <FaPlay /> : <FaPause />}
+            </button>
+            <button
+              className="control-button"
+              onClick={() => setShowDetails(!showDetails)}
+              aria-label={showDetails ? "Hide details" : "Show details"}
+            >
+              <FaInfoCircle />
+            </button>
+          </div>
+        )}
       </div>
+
+      {status === "error" && (
+        <div className="error-container" role="alert">
+          <FaExclamationTriangle className="error-icon" />
+          <p className="error-message">
+            Something went wrong. Please try again.
+          </p>
+          <button
+            className="retry-button"
+            onClick={() => window.location.reload()}
+            aria-label="Retry"
+          >
+            Retry
+          </button>
+        </div>
+      )}
     </div>
   );
 }
 
 LoadingSpinner.propTypes = {
   size: PropTypes.oneOf(["small", "medium", "large"]),
-  color: PropTypes.oneOf(["primary", "secondary", "accent", "white"]),
   text: PropTypes.string,
-  fullScreen: PropTypes.bool,
-  overlay: PropTypes.bool,
-  showText: PropTypes.bool,
-  spinnerType: PropTypes.oneOf([
-    "circular",
-    "dots",
-    "pulse",
-    "wave",
-    "bounce",
-    "progress",
-  ]),
-  icon: PropTypes.oneOf(["default", "notch", "sync", "disc", "clock"]),
-  speed: PropTypes.oneOf(["slow", "normal", "fast"]),
-  textPosition: PropTypes.oneOf(["top", "bottom"]),
-  progress: PropTypes.number,
-  customClass: PropTypes.string,
-  backgroundColor: PropTypes.string,
-  backgroundImage: PropTypes.string,
-  status: PropTypes.oneOf(["success", "error", null]),
+  spinnerType: PropTypes.oneOf(["default", "circle", "cog", "sync"]),
   onPause: PropTypes.func,
   onResume: PropTypes.func,
+  status: PropTypes.oneOf(["loading", "success", "error", "paused", "info"]),
+  progress: PropTypes.number,
+  showProgress: PropTypes.bool,
+  showControls: PropTypes.bool,
+  showStatus: PropTypes.bool,
+  className: PropTypes.string,
+  ariaLabel: PropTypes.string,
 };
 
 export default LoadingSpinner;
