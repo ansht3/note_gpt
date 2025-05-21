@@ -167,7 +167,6 @@ class YouTubeService {
       );
 
       const result2 = {
-        transcript: this.parseSrtTranscript(transcriptResponse.data),
         language: languageCode,
         segments: this.parseSrtSegments(transcriptResponse.data),
       };
