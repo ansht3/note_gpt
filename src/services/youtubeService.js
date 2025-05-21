@@ -166,10 +166,6 @@ class YouTubeService {
         }
       );
 
-      const result2 = {
-        language: languageCode,
-      };
-
       const result = {
         transcript: this.parseSrtTranscript(transcriptResponse.data),
         language: languageCode,
