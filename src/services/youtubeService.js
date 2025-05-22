@@ -173,7 +173,6 @@ class YouTubeService {
         segments: this.parseSrtSegments(transcriptResponse.data),
       };
 
-      // Cache the result
       this.setCache(cacheKey, result);
       return result;
     } catch (error) {
