@@ -116,7 +116,6 @@ class VideoController {
         availableLanguages,
       };
 
-      // Cache metadata
       await cache.set(cacheKey, metadata, this.cacheTimeout);
 
       res.json(metadata);
