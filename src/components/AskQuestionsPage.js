@@ -290,14 +290,6 @@ function AskQuestionsPage() {
     printWindow.print();
   };
 
-  // Select all questions
-  const handleSelectAll = () => {
-    if (selectedQuestions.size === questions.length) {
-      setSelectedQuestions(new Set());
-    } else {
-      setSelectedQuestions(new Set(questions.map((_, i) => i)));
-    }
-  };
   // Share questions
   const handleShareQuestions = async () => {
     try {
