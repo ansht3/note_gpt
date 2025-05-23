@@ -90,7 +90,7 @@ class VideoController {
       }
 
       // Check cache
-      // const cacheKey = `m etadata:${videoId}`;
+      const cacheKey = `m etadata:${videoId}`;
       const cachedMetadata = await cache.get(cacheKey);
       if (cachedMetadata) {
         return res.json(cachedMetadata);
