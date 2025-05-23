@@ -121,6 +121,7 @@ function AskQuestionsPage() {
     setFilteredQuestions(filtered);
   }, [questions, filters, sortConfig]);
 
+  // Generate questions
   const generateQuestions = async () => {
     try {
       setIsLoading(true);
