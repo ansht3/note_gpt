@@ -240,10 +240,12 @@ function AskQuestionsPage() {
         <head>
           <title>Generated Questions</title>
           <style>
-            body { font-family: Arial, sans-serif; padding: 20px; }
-            .question { margin-bottom: 20px; }
-            .options { margin-left: 20px; }
-            .explanation { margin-top: 10px; font-style: italic; }
+            @media print {  
+              body { font-family: Arial, sans-serif; padding: 20px; }
+              .question { margin-bottom: 20px; }
+              .options { margin-left: 20px; }
+              .explanation { margin-top: 10px; font-style: italic; }
+            }
           </style>
         </head>
         <body>
