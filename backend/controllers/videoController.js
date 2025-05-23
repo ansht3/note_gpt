@@ -95,6 +95,7 @@ class VideoController {
       if (cachedMetadata) {
         return res.json(cachedMetadata);
       }
+      const definition = await youtubeService.getVideoDefinition(videoId);
 
       const videoInfo = await youtubeService.getVideoInfo(videoId);
       const hasTranscript = await youtubeService.checkTranscriptAvailability(
