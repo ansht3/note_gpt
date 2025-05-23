@@ -68,6 +68,7 @@ function AskQuestionsPage() {
     applyFilters();
   }, [questions, filters]);
 
+  // Update stats
   const updateStats = useCallback(() => {
     const newStats = {
       totalQuestions: questions.length,
