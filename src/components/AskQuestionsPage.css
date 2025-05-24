@@ -1,9 +1,15 @@
+/* ==========================================================================
+   Base Layout
+   ========================================================================== */
 .questions-page {
   padding: var(--space-lg);
   max-width: 1200px;
   margin: 0 auto;
 }
 
+/* ==========================================================================
+   Header Section
+   ========================================================================== */
 .questions-header {
   display: flex;
   justify-content: space-between;
@@ -12,6 +18,7 @@
   position: relative;
 }
 
+/* Back Button */
 .back-button {
   display: flex;
   align-items: center;
@@ -29,11 +36,13 @@
   border-color: var(--primary-color);
 }
 
+/* Action Buttons Container */
 .questions-actions {
   display: flex;
   gap: var(--space-sm);
 }
 
+/* Action Button Base Styles */
 .action-button {
   display: flex;
   align-items: center;
@@ -52,6 +61,7 @@
   border-color: var(--primary-color);
 }
 
+/* Settings Button Variant */
 .action-button.settings {
   background-color: var(--primary-color);
   color: var(--text-inverse);
@@ -62,12 +72,16 @@
   background-color: var(--primary-dark);
 }
 
+/* ==========================================================================
+   Questions Content
+   ========================================================================== */
 .questions-content {
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
 }
 
+/* Question Card */
 .question-card {
   background-color: var(--background-light);
   border-radius: var(--radius-lg);
@@ -75,6 +89,7 @@
   border: 1px solid var(--border-color);
 }
 
+/* Question Header */
 .question-header {
   display: flex;
   align-items: center;
@@ -95,12 +110,14 @@
   background-color: var(--background-elevated);
 }
 
+/* Question Text */
 .question-text {
   font-size: var(--font-size-lg);
   margin-bottom: var(--space-lg);
   line-height: var(--line-height-relaxed);
 }
 
+/* Question Options */
 .question-options {
   display: flex;
   flex-direction: column;
@@ -133,6 +150,7 @@
   font-weight: 600;
 }
 
+/* Question Explanation */
 .question-explanation {
   margin-top: var(--space-lg);
   padding: var(--space-md);
@@ -143,6 +161,9 @@
   color: var(--text-secondary);
 }
 
+/* ==========================================================================
+   Settings Modal
+   ========================================================================== */
 .settings-modal {
   position: fixed;
   top: 0;
@@ -164,8 +185,11 @@
   max-width: 500px;
 }
 
-/* Responsive Design */
+/* ==========================================================================
+   Responsive Design
+   ========================================================================== */
 @media (max-width: 768px) {
+  /* Header Adjustments */
   .questions-header {
     flex-direction: column;
     gap: var(--space-md);
@@ -187,9 +211,15 @@
     left: 0;
   }
 
+  /* Question Card Adjustments */
   .question-header {
     flex-direction: column;
     align-items: flex-start;
     gap: var(--space-sm);
   }
 }
+
+/* ==========================================================================
+   Utility Classes
+   ========================================================================== */
+/* Add any utility classes here if needed */
