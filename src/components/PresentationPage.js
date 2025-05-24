@@ -17,6 +17,12 @@ function PresentationPage() {
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const location = useLocation();
   const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState(null);
+  const [settings, setSettings] = useState({
+    theme: "professional",
+    slidesPerTopic: 2,
+    includeImages: false,
+  });
 
   const generatePresentation = async () => {
     try {
