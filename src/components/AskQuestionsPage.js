@@ -234,13 +234,14 @@ function AskQuestionsPage() {
       selectedQuestions.size > 0
         ? questions.filter((_, i) => selectedQuestions.has(i))
         : questions;
-      <html>
+
     const printContent = `
+      <!DOCTYPE html>
       <html>
         <head>
           <title>Generated Questions</title>
           <style>
-            @media print {  
+            @media print {
               body { font-family: Arial, sans-serif; padding: 20px; }
               .question { margin-bottom: 20px; }
               .options { margin-left: 20px; }
@@ -355,7 +356,7 @@ function AskQuestionsPage() {
       <LoadingSpinner
         size="large"
         text="Generating questions..."
-        spinnerType="wave"
+        spinnerType="circle"
       />
     );
   }
