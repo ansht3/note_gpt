@@ -1,10 +1,44 @@
 /* ==========================================================================
+   CSS Custom Properties (Variables)
+   ========================================================================== */
+:root {
+  /* Colors */
+  --primary-gradient: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--primary-dark)
+  );
+  --hover-gradient: linear-gradient(
+    135deg,
+    var(--primary-dark),
+    var(--primary-color)
+  );
+  --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+  --card-shadow-hover: 0 10px 15px rgba(0, 0, 0, 0.1),
+    0 4px 6px rgba(0, 0, 0, 0.05);
+
+  /* Transitions */
+  --transition-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --transition-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Z-index layers */
+  --z-base: 1;
+  --z-elevated: 2;
+  --z-modal: 1000;
+  --z-toast: 2000;
+}
+
+/* ==========================================================================
    Base Layout
    ========================================================================== */
 .questions-page {
   padding: var(--space-lg);
   max-width: 1200px;
   margin: 0 auto;
+  min-height: 100vh;
+  background: var(--background-color);
+  position: relative;
+  overflow-x: hidden;
 }
 
 /* ==========================================================================
@@ -16,6 +50,16 @@
   align-items: center;
   margin-bottom: var(--space-xl);
   position: relative;
+  padding: var(--space-md);
+  background: var(--background-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--card-shadow);
+  transition: transform 0.3s var(--transition-smooth);
+}
+
+.questions-header:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--card-shadow-hover);
 }
 
 /* Back Button */
@@ -28,18 +72,39 @@
   background-color: transparent;
   color: var(--text-primary);
   border: 1px solid var(--border-color);
-  transition: all var(--transition-fast);
+  transition: all 0.3s var(--transition-bounce);
+  position: relative;
+  overflow: hidden;
+}
+
+.back-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--primary-gradient);
+  opacity: 0;
+  transition: opacity 0.3s var(--transition-smooth);
+  z-index: -1;
 }
 
 .back-button:hover {
-  background-color: var(--background-elevated);
-  border-color: var(--primary-color);
+  color: var(--text-inverse);
+  border-color: transparent;
+  transform: translateY(-2px);
+}
+
+.back-button:hover::before {
+  opacity: 1;
 }
 
 /* Action Buttons Container */
 .questions-actions {
   display: flex;
   gap: var(--space-sm);
+  flex-wrap: wrap;
 }
 
 /* Action Button Base Styles */
@@ -53,23 +118,48 @@
   background-color: var(--background-elevated);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
-  transition: all var(--transition-fast);
+  transition: all 0.3s var(--transition-bounce);
+  position: relative;
+  overflow: hidden;
+}
+
+.action-button::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: -100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: 0.5s;
+}
+
+.action-button:hover::after {
+  left: 100%;
 }
 
 .action-button:hover {
-  background-color: var(--background-light);
-  border-color: var(--primary-color);
+  transform: translateY(-2px);
+  box-shadow: var(--card-shadow);
 }
 
 /* Settings Button Variant */
 .action-button.settings {
-  background-color: var(--primary-color);
+  background: var(--primary-gradient);
   color: var(--text-inverse);
   border: none;
+  position: relative;
+  z-index: var(--z-elevated);
 }
 
 .action-button.settings:hover {
-  background-color: var(--primary-dark);
+  background: var(--hover-gradient);
+  transform: translateY(-2px) scale(1.05);
 }
 
 /* ==========================================================================
@@ -79,6 +169,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
+  perspective: 1000px;
 }
 
 /* Question Card */
@@ -87,6 +178,33 @@
   border-radius: var(--radius-lg);
   padding: var(--space-lg);
   border: 1px solid var(--border-color);
+  transition: all 0.3s var(--transition-smooth);
+  transform-style: preserve-3d;
+  position: relative;
+  overflow: hidden;
+}
+
+.question-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--primary-gradient);
+  opacity: 0;
+  transition: opacity 0.3s var(--transition-smooth);
+  z-index: -1;
+}
+
+.question-card:hover {
+  transform: translateY(-5px) rotateX(2deg);
+  box-shadow: var(--card-shadow-hover);
+}
+
+.question-card.selected {
+  border-color: var(--primary-color);
+  background: var(--background-elevated);
 }
 
 /* Question Header */
@@ -95,11 +213,26 @@
   align-items: center;
   gap: var(--space-md);
   margin-bottom: var(--space-md);
+  position: relative;
 }
 
 .question-number {
   font-weight: 600;
   color: var(--primary-color);
+  position: relative;
+  padding-left: var(--space-md);
+}
+
+.question-number::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 70%;
+  background: var(--primary-gradient);
+  border-radius: var(--radius-full);
 }
 
 .question-type,
@@ -108,6 +241,13 @@
   padding: var(--space-xs) var(--space-sm);
   border-radius: var(--radius-sm);
   background-color: var(--background-elevated);
+  transition: all 0.3s var(--transition-smooth);
+}
+
+.question-type:hover,
+.question-difficulty:hover {
+  transform: scale(1.05);
+  box-shadow: var(--card-shadow);
 }
 
 /* Question Text */
@@ -115,6 +255,8 @@
   font-size: var(--font-size-lg);
   margin-bottom: var(--space-lg);
   line-height: var(--line-height-relaxed);
+  position: relative;
+  padding-left: var(--space-md);
 }
 
 /* Question Options */
@@ -131,11 +273,32 @@
   padding: var(--space-md);
   border-radius: var(--radius-md);
   background-color: var(--background-elevated);
-  transition: all var(--transition-fast);
+  transition: all 0.3s var(--transition-bounce);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.option::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--primary-gradient);
+  opacity: 0;
+  transition: opacity 0.3s var(--transition-smooth);
+  z-index: -1;
 }
 
 .option:hover {
-  background-color: var(--background-light);
+  transform: translateX(5px);
+  color: var(--text-inverse);
+}
+
+.option:hover::before {
+  opacity: 1;
 }
 
 .option-letter {
@@ -144,10 +307,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--primary-color);
+  background: var(--primary-gradient);
   color: var(--text-inverse);
   border-radius: var(--radius-full);
   font-weight: 600;
+  transition: transform 0.3s var(--transition-bounce);
+}
+
+.option:hover .option-letter {
+  transform: scale(1.2) rotate(360deg);
 }
 
 /* Question Explanation */
@@ -159,6 +327,18 @@
   display: flex;
   gap: var(--space-md);
   color: var(--text-secondary);
+  position: relative;
+  overflow: hidden;
+}
+
+.question-explanation::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--primary-gradient);
 }
 
 /* ==========================================================================
@@ -175,6 +355,8 @@
   align-items: center;
   justify-content: center;
   z-index: var(--z-modal);
+  backdrop-filter: blur(5px);
+  animation: fadeIn 0.3s var(--transition-smooth);
 }
 
 .settings-content {
@@ -183,39 +365,116 @@
   border-radius: var(--radius-lg);
   width: 100%;
   max-width: 500px;
+  box-shadow: var(--card-shadow-hover);
+  transform: translateY(0);
+  animation: slideUp 0.3s var(--transition-bounce);
+}
+
+/* ==========================================================================
+   Animations
+   ========================================================================== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 /* ==========================================================================
    Responsive Design
    ========================================================================== */
 @media (max-width: 768px) {
-  /* Header Adjustments */
   .questions-header {
     flex-direction: column;
     gap: var(--space-md);
+    padding: var(--space-sm);
   }
 
   .questions-actions {
     flex-wrap: wrap;
     justify-content: center;
+    width: 100%;
   }
 
   .action-button {
     flex: 1;
     min-width: 120px;
+    font-size: var(--font-size-sm);
   }
 
   .back-button {
     position: absolute;
     top: 0;
     left: 0;
+    padding: var(--space-xs) var(--space-sm);
   }
 
-  /* Question Card Adjustments */
   .question-header {
     flex-direction: column;
     align-items: flex-start;
     gap: var(--space-sm);
+  }
+
+  .question-card {
+    padding: var(--space-md);
+  }
+
+  .option {
+    padding: var(--space-sm);
+  }
+}
+
+/* ==========================================================================
+   Dark Mode Support
+   ========================================================================== */
+@media (prefers-color-scheme: dark) {
+  .question-card {
+    background-color: var(--background-dark);
+  }
+
+  .action-button {
+    background-color: var(--background-dark-elevated);
+  }
+
+  .option {
+    background-color: var(--background-dark-elevated);
+  }
+}
+
+/* ==========================================================================
+   Reduced Motion
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 
