@@ -234,7 +234,7 @@ function AskQuestionsPage() {
       selectedQuestions.size > 0
         ? questions.filter((_, i) => selectedQuestions.has(i))
         : questions;
-
+      <html>
     const printContent = `
       <html>
         <head>

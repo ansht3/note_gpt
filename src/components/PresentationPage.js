@@ -16,6 +16,7 @@ function PresentationPage() {
   });
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const location = useLocation();
+  const navigate = useNavigate();
 
   const generatePresentation = async () => {
     try {
