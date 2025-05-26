@@ -369,9 +369,8 @@ function AskQuestionsPage() {
             onClick={() => history.goBack()}
             title="Go back"
           >
-            <b>
-              <FaArrowLeft /> Back
-            </b>
+            <b />
+            <FaArrowLeft /> Back
           </button>
           <h1>Newly Generated Questions</h1>
         </div>
