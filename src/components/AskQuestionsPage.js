@@ -360,7 +360,6 @@ function AskQuestionsPage() {
       />
     );
   }
-
   return (
     <div className="questions-page">
       <div className="questions-header">
