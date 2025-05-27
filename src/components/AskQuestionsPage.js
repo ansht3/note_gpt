@@ -372,7 +372,7 @@ function AskQuestionsPage() {
             <b />
             <FaArrowLeft /> Back
           </button>
-          <h1>Questions</h1>
+          <h1>Newly Generated Questions</h1>
         </div>
 
         <div className="questions-actions">
