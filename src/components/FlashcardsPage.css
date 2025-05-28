@@ -124,6 +124,14 @@
   transition: box-shadow 0.3s;
 }
 
+.back-button {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-lg);
+}
+
 .flashcard:hover {
   box-shadow: var(--shadow-xl);
 }
