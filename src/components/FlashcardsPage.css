@@ -121,7 +121,6 @@
   margin-bottom: var(--space-lg);
   box-shadow: var(--shadow-lg);
   background: transparent;
-  transition: box-shadow 0.3s;
 }
 
 .back-button {
