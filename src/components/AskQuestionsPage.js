@@ -376,6 +376,88 @@ function AskQuestionsPage() {
           <h1>Newly Generated Questions</h1>
         </div>
 
+        <div className="header-right">
+          <button
+            className="action-button action-button--new"
+            onClick={() => setShowNewQuestionForm(true)}
+            title="Add new question"
+          >
+            <FaPlus /> Add Question
+          </button>
+        </div>
+
+        {showNewQuestionForm && (
+          <div className="modal">
+            <div className="modal-content">
+              <h2>Add New Question</h2>
+              <form onSubmit={handleSubmitQuestion}>
+                <div className="form-group">
+                  <label htmlFor="questionText">Question:</label>
+                  <textarea
+                    id="questionText"
+                    value={newQuestion.text}
+                    onChange={(e) =>
+                      setNewQuestion({
+                        ...newQuestion,
+                        text: e.target.value,
+                      })
+                    }
+                    placeholder="Enter your question here..."
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="questionAnswer">Answer:</label>
+                  <textarea
+                    id="questionAnswer"
+                    value={newQuestion.answer}
+                    onChange={(e) =>
+                      setNewQuestion({
+                        ...newQuestion,
+                        answer: e.target.value,
+                      })
+                    }
+                    placeholder="Enter the answer here..."
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="questionDifficulty">Difficulty:</label>
+                  <select
+                    id="questionDifficulty"
+                    value={newQuestion.difficulty}
+                    onChange={(e) =>
+                      setNewQuestion({
+                        ...newQuestion,
+                        difficulty: e.target.value,
+                      })
+                    }
+                  >
+                    <option value="easy">Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard">Hard</option>
+                  </select>
+                </div>
+
+                <div className="form-actions">
+                  <button type="submit" className="btn-primary">
+                    Save Question
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-secondary"
+                    onClick={() => setShowNewQuestionForm(false)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
         <div className="questions-actions">
           <button
             className="action-button"
