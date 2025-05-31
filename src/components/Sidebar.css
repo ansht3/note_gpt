@@ -251,6 +251,7 @@
   }
 }
 
+<<<<<<< HEAD
 /* CSS Variables for theming */
 :root {
   --sidebar-bg: #ffffff;
@@ -276,4 +277,29 @@
   --active-bg: #1a237e;
   --input-bg: #2a2a2a;
   --dropdown-bg: #2a2a2a;
+=======
+.footer-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.footer-link {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 4px;
+  text-decoration: none;
+  color: inherit;
+  transition: background-color 0.2s;
+}
+
+.footer-link:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.footer-link svg {
+  margin-right: 10px;
+>>>>>>> 2882e708 (fixing the handleError function on frontend)
 }

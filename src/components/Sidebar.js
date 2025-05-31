@@ -368,6 +368,7 @@ function Sidebar() {
         </nav>
 
         <div className="sidebar-footer">
+<<<<<<< HEAD
           <div className="user-profile">
             {userProfile ? (
               <div className="profile-info">
@@ -419,6 +420,16 @@ function Sidebar() {
               <div className="loading-profile">Loading...</div>
             )}
           </div>
+=======
+          {/* <button
+            className="theme-toggle"
+            onClick={toggleTheme}
+            aria-label={`Switch to ${isDarkMode ? "light" : "dark"} mode`}
+          >
+            <FaLightbulb />
+            <span>{isDarkMode ? "Light Mode" : "Dark Mode"}</span>
+          </button> */}
+>>>>>>> 2882e708 (fixing the handleError function on frontend)
 
           <div className="action-buttons">
             <button
