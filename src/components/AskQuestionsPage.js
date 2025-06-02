@@ -138,6 +138,11 @@ function AskQuestionsPage() {
     console.log(newQuestion);
   }
 
+  async function handleUpdateQuestion(e) {
+    e.preventDefault();
+    console.log(newQuestion);
+  }
+
   // Generate questions
   const generateQuestions = async () => {
     try {
