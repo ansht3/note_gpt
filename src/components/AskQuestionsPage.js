@@ -121,6 +121,13 @@ function AskQuestionsPage() {
     setFilteredQuestions(filtered);
   }, [questions, filters, sortConfig]);
 
+  const [showNewQuestionForm, setShowNewQuestionForm] = useState(false);
+  const [newQuestion, setNewQuestion] = useState({
+    text: "",
+    answer: "",
+    difficulty: "easy",
+  });
+
   // Generate questions
   const generateQuestions = async () => {
     try {
