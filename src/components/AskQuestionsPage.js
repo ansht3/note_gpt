@@ -128,6 +128,11 @@ function AskQuestionsPage() {
     difficulty: "easy",
   });
 
+  async function handleSubmitQuestion(e) {
+    e.preventDefault();
+    console.log(newQuestion);
+  }
+
   // Generate questions
   const generateQuestions = async () => {
     try {
