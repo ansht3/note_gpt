@@ -300,6 +300,12 @@ function AskQuestionsPage() {
     printWindow.print();
   };
 
+  //simplify the handleSubmitQuestion function
+  const handleSubmitQuestion = async (e) => {
+    e.preventDefault();
+    console.log(newQuestion);
+  };
+
   // Share questions
   const handleShareQuestions = async () => {
     try {
