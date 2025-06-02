@@ -133,11 +133,6 @@ function AskQuestionsPage() {
     console.log(newQuestion);
   }
 
-  async function handleDeleteQuestion(e) {
-    e.preventDefault();
-    console.log(newQuestion);
-  }
-
   // Generate questions
   const generateQuestions = async () => {
     try {
