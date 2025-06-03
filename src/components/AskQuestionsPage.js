@@ -304,12 +304,6 @@ function AskQuestionsPage() {
     e.preventDefault();
     console.log(newQuestion);
   };
-
-  const handleDeleteQuestion = async (e) => {
-    e.preventDefault();
-    console.log(newQuestion);
-  };
-
   // Share questions
   const handleShareQuestions = async () => {
     try {
