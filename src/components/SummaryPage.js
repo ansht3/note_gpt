@@ -75,7 +75,6 @@ function SummaryPage() {
         setSettings((prev) => ({ ...prev, ...userSettings }));
       }
 
-      // Generate summary using AI
       const response = await api.ai.generateSummary(text);
       setSummary(response.summary);
       setEditedSummary(response.summary);
@@ -100,6 +99,11 @@ function SummaryPage() {
     } catch (err) {
       setError(t("errors.copyFailed"));
     }
+  };
+
+  const checkIfSummaryExists = async () => {
+    const response = await api.ai.checkIfSummaryExists(videoInfo?.title);
+    return response.exists;
   };
 
   const handleDownload = () => {
