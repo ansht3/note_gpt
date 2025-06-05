@@ -101,11 +101,6 @@ function SummaryPage() {
     }
   };
 
-  async function checkIfSummaryExists() {
-    const response = await api.ai.checkIfSummaryExists(videoInfo?.title);
-    return response.exists;
-  }
-
   const handleDownload = () => {
     try {
       const blob = new Blob([editedSummary], { type: "text/plain" });
