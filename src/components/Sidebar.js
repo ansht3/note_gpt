@@ -368,59 +368,6 @@ function Sidebar() {
         </nav>
 
         <div className="sidebar-footer">
-<<<<<<< HEAD
-          <div className="user-profile">
-            {userProfile ? (
-              <div className="profile-info">
-                <button
-                  className="avatar-btn"
-                  onClick={handleUserMenu}
-                  aria-label="User menu"
-                  aria-haspopup="true"
-                  aria-expanded={showUserMenu}
-                >
-                  {userProfile.avatar ? (
-                    <img
-                      src={userProfile.avatar}
-                      alt={userProfile.name}
-                      className="avatar"
-                    />
-                  ) : (
-                    <FaUserCircle className="avatar-placeholder" />
-                  )}
-                  <span
-                    className={`status-indicator status-online`}
-                    title="Online"
-                  />
-                </button>
-                {!isCollapsed && (
-                  <div className="user-details">
-                    <span className="user-name">{userProfile.name}</span>
-                    <span className="user-email">{userProfile.email}</span>
-                  </div>
-                )}
-                {showUserMenu && (
-                  <div className="user-menu" role="menu">
-                    <button className="user-menu-item" onClick={() => {}}>
-                      <FaUser /> Profile
-                    </button>
-                    <button
-                      className="user-menu-item"
-                      onClick={() => setShowSettings(true)}
-                    >
-                      <FaCog /> Settings
-                    </button>
-                    <button className="user-menu-item" onClick={handleLogout}>
-                      <FaSignOutAlt /> Logout
-                    </button>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="loading-profile">Loading...</div>
-            )}
-          </div>
-=======
           {/* <button
             className="theme-toggle"
             onClick={toggleTheme}
@@ -429,7 +376,6 @@ function Sidebar() {
             <FaLightbulb />
             <span>{isDarkMode ? "Light Mode" : "Dark Mode"}</span>
           </button> */}
->>>>>>> 2882e708 (fixing the handleError function on frontend)
 
           <div className="action-buttons">
             <button
