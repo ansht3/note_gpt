@@ -24,6 +24,14 @@
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
 }
 
+.youtube-component.dark-mode .youtube-header h1 {
+  color: var(--text-primary-dark);
+}
+
+.youtube-component.dark-mode .youtube-description {
+  color: var(--text-secondary-dark);
+}
+
 .youtube-component.dark-mode::before {
   background: linear-gradient(90deg, #ff0000, #ff6b6b);
 }
