@@ -458,6 +458,36 @@ function Sidebar() {
           </div>
         )}
 
+        {/* More Options Menu */}
+        {showMoreOptions && (
+          <div ref={moreOptionsRef} className="more-options-menu animated-menu">
+            <button className="option-item" onClick={handlePrintPage}>
+              <FaPrint />
+              <span>Print Page</span>
+            </button>
+            <button className="option-item" onClick={handleExport}>
+              <FaDownload />
+              <span>Export Data</span>
+            </button>
+            <button className="option-item" onClick={handleShare}>
+              <FaShare />
+              <span>Share</span>
+            </button>
+            <button className="option-item" onClick={handleBookmark}>
+              <FaBookmark />
+              <span>Bookmark</span>
+            </button>
+            <button className="option-item" onClick={handleHistory}>
+              <FaHistory />
+              <span>View History</span>
+            </button>
+            <button className="option-item" onClick={handlePreferences}>
+              <FaCog />
+              <span>Preferences</span>
+            </button>
+          </div>
+        )}
+
         {/* Notifications Panel */}
         {showNotifications && (
           <div
