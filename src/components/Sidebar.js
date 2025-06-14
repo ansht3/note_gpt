@@ -483,7 +483,7 @@ function Sidebar() {
             </button>
             <button className="option-item" onClick={handlePreferences}>
               <FaCog />
-              <span>Preference Agains</span>
+              <span>Preference Again</span>
             </button>
           </div>
         )}
