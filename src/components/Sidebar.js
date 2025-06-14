@@ -458,8 +458,6 @@ function Sidebar() {
           </div>
         )}
 
-        {/* More Options Menu */}
-
         {/* Notifications Panel */}
         {showNotifications && (
           <div
