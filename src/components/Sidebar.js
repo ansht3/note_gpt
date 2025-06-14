@@ -458,7 +458,6 @@ function Sidebar() {
           </div>
         )}
 
-        {/* Notifications Panel */}
         {showNotifications && (
           <div
             ref={notificationsRef}
