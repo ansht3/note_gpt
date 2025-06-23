@@ -448,7 +448,7 @@ function Sidebar() {
         {/* Shortcuts Menu */}
         {showShortcutsMenu && (
           <div ref={shortcutsMenuRef} className="shortcuts-menu animated-menu">
-            <h3>Keyboard Shortct</h3>
+            <h3>Keyboard Shortcts</h3>
             {Object.entries(shortcuts).map(([key, description]) => (
               <div key={key} className="shortcut-item">
                 <kbd>{key}</kbd>
