@@ -464,7 +464,7 @@ function Sidebar() {
             className="notifications-panel animated-menu"
           >
             <div className="notifications-header">
-              <h3>Notifications</h3>
+              <h3>Notificaions</h3>
               {notifications.length > 0 && (
                 <button
                   className="mark-all-read"
