@@ -469,7 +469,7 @@ function Sidebar() {
                 <button
                   className="mark-all-read"
                   onClick={handleMarkAllRead}
-                  aria-label="Mark all as read"
+                  aria-label="Mark allas read"
                 >
                   <FaCheck /> Mark all as read
                 </button>
