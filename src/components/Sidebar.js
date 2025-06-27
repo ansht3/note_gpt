@@ -468,7 +468,7 @@ function Sidebar() {
               {notifications.length > 0 && (
                 <button
                   className="mark-all-read"
-                  onClick={handleMarkAllRead}
+                  onClick={}
                   aria-label="Mark all as read"
                 >
                   <FaCheck /> Mark all notifs as read
