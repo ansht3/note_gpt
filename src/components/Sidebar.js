@@ -471,7 +471,7 @@ function Sidebar() {
                   onClick={handleMarkAllRead}
                   aria-label="Mark all as read"
                 >
-                  <FaCheck /> Mark all notifs as read
+                  <FaCheck /> Mark all notifs as read until checked
                 </button>
               )}
             </div>
