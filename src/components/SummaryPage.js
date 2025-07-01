@@ -101,14 +101,6 @@ function SummaryPage() {
     }
   };
 
-  const handleNewCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(editedSummary);
-      setCopySuccess(true);
-      setTimeout(() => setCopySuccess(false), 2000);
-    }
-  };
-
   const handleDownload = () => {
     try {
       const blob = new Blob([editedSummary], { type: "text/plain" });
