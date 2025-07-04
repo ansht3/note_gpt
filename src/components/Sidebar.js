@@ -487,7 +487,8 @@ function Sidebar() {
               ))
             ) : (
               <div className="no-notifications">
-                Further notifications will appear here
+                <FaBell />
+                <span>No new notifications</span>
               </div>
             )}
           </div>
