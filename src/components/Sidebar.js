@@ -486,7 +486,7 @@ function Sidebar() {
                 </div>
               ))
             ) : (
-              <div className="no-notifications">No new notifications</div>
+              <div className="no-notifications">No new notifs</div>
             )}
           </div>
         )}
